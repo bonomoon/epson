@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Link from 'next/link';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
@@ -10,42 +11,29 @@ export default function Home() {
       </Head>
 
       <main>
+        <h2>
+          <img src="/vercel.svg" alt="Vercel" className={styles.logo} />
+        </h2>
+
         <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+          Haneum AI
         </h1>
 
         <p className={styles.description}>
-          Get started by editing <code>pages/index.js</code>
+          Description
         </p>
 
         <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+          <Link href="https://nextjs.org/docs" className={styles.card}>
+            <h3>정간보 변환 &rarr;</h3>
+            <p>정간보를 오선보로 역보해보세요.</p>
+            <label>* Epson Connect 원격 스캔, PDF 삽입 지원</label>
+          </Link>
+          <Link href="https://nextjs.org/docs" className={styles.card}>
+            <h3>오선보 변환 &rarr;</h3>
+            <p>오선보를 정간보로 역보해보세요.</p>
+            <label>* Epson Connect 원격 스캔, PDF 삽입 지원</label>
+          </Link>
         </div>
       </main>
 
@@ -55,8 +43,7 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className={styles.logo} />
+          Powered by&nbsp;<b>백제대로 567</b>
         </a>
       </footer>
 

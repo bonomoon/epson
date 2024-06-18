@@ -76,8 +76,13 @@
 
 .card p {
   margin: 0;
+  white-space: nowrap;
   font-size: 1.25rem;
   line-height: 1.5;
+}
+
+.card label {
+  font-size: 14px;
 }
 
 .logo {
