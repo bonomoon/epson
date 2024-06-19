@@ -6,33 +6,33 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Create Next App</title>
+        <title>Haneum AI</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
-        <h2>
-          <img src="/vercel.svg" alt="Vercel" className={styles.logo} />
-        </h2>
+        <h1>
+          <img src="/logo.svg" alt="Vercel" className={styles.logo} />
+        </h1>
 
         <h1 className={styles.title}>
           Haneum AI
         </h1>
 
         <p className={styles.description}>
-          Description
+          우리 음악, 국악 AI 서비스
         </p>
 
         <div className={styles.grid}>
-          <Link href="https://nextjs.org/docs" className={styles.card}>
+          <Link href="/converter/jungganbo-to-staff" className={styles.card}>
             <h3>정간보 변환 &rarr;</h3>
             <p>정간보를 오선보로 역보해보세요.</p>
-            <label>* Epson Connect 원격 스캔, PDF 삽입 지원</label>
+            <label>* Epson Connect 원격 스캔 지원</label>
           </Link>
-          <Link href="https://nextjs.org/docs" className={styles.card}>
+          <Link href="/converter/staff-to-jungganbo" className={styles.card}>
             <h3>오선보 변환 &rarr;</h3>
             <p>오선보를 정간보로 역보해보세요.</p>
-            <label>* Epson Connect 원격 스캔, PDF 삽입 지원</label>
+            <label>* Epson Connect 원격 스캔 지원</label>
           </Link>
         </div>
       </main>
