@@ -93,7 +93,7 @@ export default function Score() {
       <ScoreHeader className="absolute w-full z-30" />
       <div className="h-full flex flex-col pt-20">
         <Container>
-          <h3 className="font-extrabold text-3xl">정간보 &rarr; 오선보</h3>
+          <h3 className="font-extrabold text-3xl">정간보 변환</h3>
           <label className="text-gray-500">
             * 현재 단소 악보 및 오선보 변환 지원
           </label>
@@ -136,11 +136,11 @@ export default function Score() {
               <div className="w-full h-full">
                 <ScoreCardSlider scores={scoreFiles} />
               </div>
-              <Container className="flex flex-row text-center justify-center items-center gap-3 mt-5 mb-10">
+              <Container className="flex flex-row w-full text-center justify-center items-center gap-3 mt-5 mb-10">
                 <label htmlFor="file-input">
                   <button
                     id="file-select-btn"
-                    className="w-full bg-gray-300 hover:bg-gray-500 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+                    className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
                     onClick={() =>
                       document.getElementById("file-input").click()
                     }
@@ -155,7 +155,7 @@ export default function Score() {
                   className="hidden"
                   onChange={handleFileInputChange}
                 />
-                <button className="w-56 bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300">
+                <button className="grow bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300">
                   변환하기
                 </button>
               </Container>
@@ -200,7 +200,7 @@ export default function Score() {
             <span className="sr-only">Close modal</span>
           </button>
         </div>
-        <div className="py-5 px-8">
+        <div className="py-5 px-8 flex flex-wrap">
           <form className="w-80" onSubmit={handleEpsonConnectAuth}>
             <div>
               <label
