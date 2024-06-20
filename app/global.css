@@ -6,6 +6,12 @@ html,
 body {
   padding: 0;
   margin: 0;
+  user-select: none;
+  height: 100%;
+}
+
+main {
+  height: 100%;
 }
 
 a {

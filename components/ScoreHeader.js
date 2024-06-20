@@ -1,9 +1,9 @@
 import Link from "next/link";
 import Container from "./Container";
 
-export default function ScoreHeader() {
+export default function ScoreHeader(props) {
   return (
-    <header className="text-center sm:text-left">
+    <header className={`text-center sm:text-left py-2 ${props.className}`}>
       <Container>
         <h1>
           <Link href="/">
