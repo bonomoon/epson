@@ -106,6 +106,9 @@
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
   max-width: fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .blue_card:hover,
@@ -154,6 +157,14 @@
   }
 }
 
+.connected_status {
+  color: #80ff74;
+  padding: 0.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .not_connected_status {
   color: #a8a8a8;
   padding: 0.1rem;
@@ -181,6 +192,18 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
+}
+.device_connected_status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  background-color: #f5f5f5;
+  border-color: #80ff74;
+  border-radius: 6px;
+  border-style: solid;
+  max-width: 300px;
+  min-width: 175px;
 }
 
 .device_status {
@@ -214,4 +237,11 @@
   color: #aaaaaa;
   flex-direction: column;
   font-size: small;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
 }
