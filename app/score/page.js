@@ -27,21 +27,26 @@ export default function ScoreInputPage() {
   return (
     <div className={styles.container}>
       <div className={styles.nav}>
-        <img src="/logo.svg" alt="Vercel" className={styles.logo} />
-      </div>
-      {/* 기기 연결 상태창 */}
-      <div className={styles.device_status_container}>
-        <div className={styles.device_status}>
-          <div className={styles.not_connected_status}>
-            <DoDisturbOnOutlinedIcon />
-          </div>
-          <div className={styles.device_status_msg}>기기 연결 안됨</div>
-          <div className={styles.print_add_container}>
-            <div className={styles.print_add}>
-              <AddLinkIcon sx={{ fontSize: "20px" }} />
+        <div className={styles.nav_item}>
+          <img src="/logo.svg" alt="Vercel" className={styles.logo} />
+        </div>
+        <div className={styles.nav_item}>
+          {/* 기기 연결 상태창 */}
+          <div className={styles.device_status_container}>
+            <div className={styles.device_status}>
+              <div className={styles.not_connected_status}>
+                <DoDisturbOnOutlinedIcon />
+              </div>
+              <div className={styles.device_status_msg}>기기 연결 안됨</div>
+              <div className={styles.print_add_container}>
+                <div className={styles.print_add}>
+                  <AddLinkIcon sx={{ fontSize: "20px" }} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
+        <div className={styles.nav_item}></div>
       </div>
       {/* 설명 */}
       <div className={styles.page_description}>
@@ -53,7 +58,10 @@ export default function ScoreInputPage() {
       {/* pdf */}
       <div className={styles.pdf_description}>
         <AddCircleOutlineOutlinedIcon sx={{ fontSize: "120px" }} />
-        <p>Epson Scanner에 연결하여, 자동으로 추가해보세요</p>
+        <p>
+          Epson Scanner에 연결하여, <br />
+          자동으로 추가해보세요
+        </p>
       </div>
 
       {/* 버튼 */}
