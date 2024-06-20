@@ -2,7 +2,7 @@ import styles from "../../styles/Process.module.css"
 
 export default function Process() {
   let progress = 10
-  let msg = [
+  const msg = [
     "음계 추출하는 중...",
     "오선보 전환 중...",
     "악보 생성 중...",
