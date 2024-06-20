@@ -138,8 +138,12 @@
   color: grey;
   border-color: white;
 }
+.nav_item {
+  flex: 1;
+}
 .logo {
   height: 2em;
+  margin-right: 1rem;
 }
 
 @media (max-width: 600px) {
@@ -161,6 +165,7 @@
   background-color: #0a79fd;
   border-radius: 50%;
   padding: 0.1rem;
+  margin: 0.1rem;
 }
 
 .print_add {
@@ -175,7 +180,6 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 2rem;
 }
 
 .device_status {
@@ -188,7 +192,7 @@
   border-radius: 6px;
   border-style: solid;
   max-width: 300px;
-  width: 50%;
+  min-width: 175px;
 }
 
 .device_status_msg {
