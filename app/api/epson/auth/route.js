@@ -1,8 +1,8 @@
 export async function POST(req) {
   const { email, password } = await req.json();
   
-  const clientId = process.env.PUBLIC_EPSON_CLIENT_ID;
-  const clientSecret = process.env.PUBLIC_EPSON_CLIENT_SECRET;
+  const clientId = process.env.EPSON_CLIENT_ID;
+  const clientSecret = process.env.EPSON_CLIENT_SECRET;
 
   const authHeader = `Basic ${btoa(`${clientId}:${clientSecret}`)}`;
   
