@@ -54,9 +54,7 @@ export default function Score() {
   return (
     <div>
       <ScoreHeader />
-      <Container>
-        <p>Status: {isConnected ? "connected" : "disconnected"}</p>
-        <p>Transport: {transport}</p>
+      <Container className="">
         <div>
           {scoreFiles.map((file, idx) => (
             <div key={idx}>
@@ -64,25 +62,42 @@ export default function Score() {
             </div>
           ))}
         </div>
-        <label
-          for="file-input"
-          class="mb-2 font-medium flex justify-between items-center"
-        >
+        <div>
+          <h3 className="font-extrabold text-2xl">정간보 &rarr; 오선보</h3>
+          <label>* 현재 단소 악보 및 오선보 변환 지원</label>
+        </div>
+        <div className="flex flex-col items-center gap-3">
+          <div>
+            
+            <p>Epson Scanner에 연결하여,</p>
+            <p>자동으로 추가해보세요.</p>
+          </div>
           <button
             id="file-select-btn"
-            class=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition-colors duration-300"
-            onClick={() => document.getElementById("file-input").click()}
+            className="w-64 bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300"
           >
-            파일 가져오기
+            Epson Connect 연결
           </button>
-        </label>
-        <input
-          id="file-input"
-          type="file"
-          multiple
-          class="hidden"
-          onChange={handleFileInputChange}
-        />
+          <label
+            for="file-input"
+            className="w-64"
+          >
+            <button
+              id="file-select-btn"
+              className="w-full bg-gray-300 hover:bg-gray-500 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+              onClick={() => document.getElementById("file-input").click()}
+            >
+              파일 가져오기
+            </button>
+          </label>
+          <input
+            id="file-input"
+            type="file"
+            multiple
+            class="hidden"
+            onChange={handleFileInputChange}
+          />
+        </div>
       </Container>
     </div>
   );
