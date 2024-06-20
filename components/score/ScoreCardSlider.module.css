@@ -1,0 +1,9 @@
+/* styles/Slider.module.css */
+
+
+.item {
+  padding: 10px;
+  transition: 0.5s;
+  top: 0;
+  aspect-ratio: 210 / 297;
+}
