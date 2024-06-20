@@ -1,40 +1,44 @@
-import Link from "next/link";
-import styles from "../../styles/Home.module.css";
+"use client";
 
-export default function ScoreInputPage() {
+import { useEffect, useState } from "react";
+import { socket } from "../socket";
 
-  const handleEpsonConnect = async (email) => {
-    const res = await fetch("/api/epson/auth", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email }),
-    });
+export default function Score() {
+  const [isConnected, setIsConnected] = useState(false);
+  const [transport, setTransport] = useState("N/A");
 
-    const data = await res.json();
-
-    if (res.ok) {
-      console.log(data)
-    } else {
-      console.log(data);
+  useEffect(() => {
+    if (socket.connected) {
+      onConnect();
     }
-  };
+
+    function onConnect() {
+      setIsConnected(true);
+      setTransport(socket.io.engine.transport.name);
+
+      socket.io.engine.on("upgrade", (transport) => {
+        setTransport(transport.name);
+      });
+    }
+
+    function onDisconnect() {
+      setIsConnected(false);
+      setTransport("N/A");
+    }
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+    };
+  }, []);
 
   return (
-    <div className={styles.container}>
-      <h3>
-        <img src="/logo.svg" alt="Vercel" className={styles.logo} />
-      </h3>
-
-      <div className={styles.grid}>
-        <Link href="/score/scan" className={styles.card}>
-          <h3>Epson Connect 스캔</h3>
-        </Link>
-        <Link href="/epson" className={styles.card}>
-          <h3>PDF 파일 선택</h3>
-        </Link>
-      </div>
+    <div>
+      <p>Status: { isConnected ? "connected" : "disconnected" }</p>
+      <p>Transport: { transport }</p>
     </div>
   );
 }
