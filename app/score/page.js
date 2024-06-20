@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { socket } from "../socket";
-import ScoreHeader from "../../components/score/ScoreHeader";
+import { useEffect, useRef, useState } from "react";
 import Container from "../../components/Container";
 import ScoreCardSlider from "../../components/score/ScoreCardSlider";
+import ScoreHeader from "../../components/score/ScoreHeader";
+import { socket } from "../socket";
+
 
 export default function Score() {
   const epsonAuthRef = useRef();
@@ -83,7 +84,7 @@ export default function Score() {
     } else {
       console.error("Authentication failed", data);
     }
-  };
+  }
 
   return (
     <div className="h-full ">

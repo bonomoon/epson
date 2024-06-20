@@ -3,7 +3,7 @@ import Container from "../components/Container";
 
 export default function Home() {
   return (
-    <div className="h-screen flex flex-col justify-center items-center gap-3">
+    <Container className="h-screen flex flex-col justify-center items-center gap-3">
       <div>
         <img src="/logo.svg" alt="Vercel" className="h-14 mb-3" />
       </div>
@@ -35,6 +35,6 @@ export default function Home() {
           </label>
         </Link>
       </div>
-    </div>
+    </Container>
   );
 }

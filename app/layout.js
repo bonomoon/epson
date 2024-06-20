@@ -4,7 +4,7 @@ import "./global.css";
 export const metadata = {
   title: "Haneum AI",
   description: "",
-};
+}
 
 const pretendard = localFont({
   src: "../fonts/PretendardVariable.woff2",
@@ -25,5 +25,5 @@ export default function RootLayout({ children }) {
         </main>
       </body>
     </html>
-  );
+  )
 }
