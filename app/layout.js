@@ -1,19 +1,17 @@
-import "./global.css";
+import "./global.css"
 
 export const metadata = {
   title: "Haneum AI",
   description: "",
-};
+}
 
 export default function RootLayout({ children }) {
   return (
     <html lang="ko">
-      <head/>
+      <head />
       <body>
-        <main>
-          {children}
-        </main>
+        <main>{children}</main>
       </body>
     </html>
-  );
+  )
 }
