@@ -1,11 +1,7 @@
 import Link from "next/link"
 
 import styles from "../../styles/Result.module.css"
-import AddLinkIcon from "@mui/icons-material/AddLink"
-import DoDisturbOnOutlinedIcon from "@mui/icons-material/DoDisturbOnOutlined"
-import LocalPrintshopOutlinedIcon from "@mui/icons-material/LocalPrintshopOutlined"
-import PictureAsPdfOutlinedIcon from "@mui/icons-material/PictureAsPdfOutlined"
-import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined"
+import { AddLink, DoDisturbOnOutlined, LocalPrintshopOutlined, PictureAsPdfOutlined, CheckCircleOutlined } from "@mui/icons-material"
 
 export default function ResultPage() {
   let isConnected = false
@@ -23,7 +19,7 @@ export default function ResultPage() {
             {isConnected ? (
               <div className={styles.device_connected_status}>
                 <div className={styles.connected_status}>
-                  <CheckCircleOutlinedIcon />
+                  <CheckCircleOutlined />
                 </div>
                 <div className={styles.device_status_msg}>
                   TWX-1234에 연결됨
@@ -33,12 +29,12 @@ export default function ResultPage() {
             ) : (
               <div className={styles.device_status}>
                 <div className={styles.not_connected_status}>
-                  <DoDisturbOnOutlinedIcon />
+                  <DoDisturbOnOutlined />
                 </div>
                 <div className={styles.device_status_msg}>기기 연결 안됨</div>
                 <div className={styles.print_add_container}>
                   <div className={styles.print_add}>
-                    <AddLinkIcon sx={{ fontSize: "20px" }} />
+                    <AddLink sx={{ fontSize: "20px" }} />
                   </div>
                 </div>
               </div>
@@ -67,11 +63,11 @@ export default function ResultPage() {
           className={!isConnected ? styles.disabled : styles.blue_card}
           aria-disabled={!isConnected}
         >
-          <LocalPrintshopOutlinedIcon style={{ marginRight: 0.5 }} />
+          <LocalPrintshopOutlined style={{ marginRight: 0.5 }} />
           프린트하기
         </Link>
         <a href={imageLink} className={styles.grey_card} download>
-          <PictureAsPdfOutlinedIcon />
+          <PictureAsPdfOutlined />
           PDF로 저장하기
         </a>
       </div>

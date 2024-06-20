@@ -6,6 +6,8 @@ import ScoreCardSlider from "../../components/score/ScoreCardSlider";
 import ScoreHeader from "../../components/score/ScoreHeader";
 import { socket } from "../socket";
 
+import { AddCircleOutlineOutlined } from "@mui/icons-material";
+
 
 export default function Score() {
   const epsonAuthRef = useRef();
@@ -98,8 +100,9 @@ export default function Score() {
         </Container>
         <div className="h-full flex flex-col items-center justify-center">
           {scoreFiles.length === 0 ? (
-            <Container className="flex flex-col text-center justify-center items-center gap-3">
-              <div>
+            <Container className="flex flex-col text-center justify-center items-center gap-3 mb-56">
+              <div className="mb-10">
+                <AddCircleOutlineOutlined sx={{ fontSize: "120px" }} className="text-gray-400" />
                 <p>
                   Epson Scanner에 연결하여,
                   <br /> 자동으로 추가해보세요
