@@ -7,9 +7,10 @@ export default function ScoreCardSlider({ scores }) {
   const [active, setActive] = useState(0);
 
   const loadShow = () => {
-    let stt = 0;
     scores.forEach((item, index) => {
       const itemElement = document.getElementById(`item-${index}`);
+      let stt = 0;
+      
       if (index === active) {
         itemElement.style.transform = "none";
         itemElement.style.zIndex = 1;
@@ -17,17 +18,23 @@ export default function ScoreCardSlider({ scores }) {
         itemElement.style.opacity = 1;
       } else if (index > active) {
         stt++;
-        itemElement.style.transform = `translateX(${120 * stt}px) scale(${
-          1 - 0.2 * stt
-        }) perspective(16px) rotateY(-1deg)`;
+        itemElement.style.transform = `
+            translateX(${120 * stt}px)
+            scale(${1 - 0.2 * stt})
+            perspective(16px)
+            rotateY(-1deg)
+        `;
         itemElement.style.zIndex = -stt;
         itemElement.style.filter = "blur(5px)";
         itemElement.style.opacity = stt > 2 ? 0 : 0.6;
       } else {
         stt++;
-        itemElement.style.transform = `translateX(${-120 * stt}px) scale(${
-          1 - 0.2 * stt
-        }) perspective(16px) rotateY(1deg)`;
+        itemElement.style.transform = `
+            translateX(${-120 * stt}px)
+            scale(${1 - 0.2 * stt})
+            perspective(16px)
+            rotateY(1deg)
+        `;
         itemElement.style.zIndex = -stt;
         itemElement.style.filter = "blur(5px)";
         itemElement.style.opacity = stt > 2 ? 0 : 0.6;
@@ -49,9 +56,12 @@ export default function ScoreCardSlider({ scores }) {
         <div
           key={index}
           id={`item-${index}`}
-          className={`absolute m-auto top-0 bottom-0 left-0 right-0 text-justify bg-white w-10/12 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ${styles.item}`}
+          className={`absolute m-auto top-0 bottom-0 left-0 right-0 text-justify bg-white w-[22rem] border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ${styles.item}`}
         >
-            <img src={item.url} className="w-full h-full object-cover rounded-lg" />
+          <img
+            src={item.url}
+            className="w-full h-full object-cover rounded-lg"
+          />
         </div>
       ))}
       {active < scores.length - 1 && (
@@ -74,7 +84,7 @@ export default function ScoreCardSlider({ scores }) {
           &larr;
         </button>
       )}
-      <div className="absolute bottom-6 mx-auto left-0 right-0 text-center font-bold text-gray-500">
+      <div className="absolute bottom-0 mx-auto left-0 right-0 text-center font-bold text-gray-500">
         {active + 1} / {scores.length}
       </div>
     </div>

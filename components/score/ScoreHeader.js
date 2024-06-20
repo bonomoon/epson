@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Container from "./Container";
+import Container from "../Container";
 
 export default function ScoreHeader(props) {
   return (
