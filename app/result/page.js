@@ -5,8 +5,11 @@ import AddLinkIcon from "@mui/icons-material/AddLink"
 import DoDisturbOnOutlinedIcon from "@mui/icons-material/DoDisturbOnOutlined"
 import LocalPrintshopOutlinedIcon from "@mui/icons-material/LocalPrintshopOutlined"
 import PictureAsPdfOutlinedIcon from "@mui/icons-material/PictureAsPdfOutlined"
+import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined"
 
 export default function ResultPage() {
+  let isConnected = false
+
   return (
     <div className={styles.container}>
       <div className={styles.nav}>
@@ -16,17 +19,29 @@ export default function ResultPage() {
         <div className={styles.nav_item}>
           {/* 기기 연결 상태창 */}
           <div className={styles.device_status_container}>
-            <div className={styles.device_status}>
-              <div className={styles.not_connected_status}>
-                <DoDisturbOnOutlinedIcon />
+            {isConnected ? (
+              <div className={styles.device_connected_status}>
+                <div className={styles.connected_status}>
+                  <CheckCircleOutlinedIcon />
+                </div>
+                <div className={styles.device_status_msg}>
+                  TWX-1234에 연결됨
+                </div>
+                <div></div>
               </div>
-              <div className={styles.device_status_msg}>기기 연결 안됨</div>
-              <div className={styles.print_add_container}>
-                <div className={styles.print_add}>
-                  <AddLinkIcon sx={{ fontSize: "20px" }} />
+            ) : (
+              <div className={styles.device_status}>
+                <div className={styles.not_connected_status}>
+                  <DoDisturbOnOutlinedIcon />
+                </div>
+                <div className={styles.device_status_msg}>기기 연결 안됨</div>
+                <div className={styles.print_add_container}>
+                  <div className={styles.print_add}>
+                    <AddLinkIcon sx={{ fontSize: "20px" }} />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
         <div className={styles.nav_item}></div>
@@ -50,7 +65,11 @@ export default function ResultPage() {
       </div>
 
       <div className={styles.grid}>
-        <Link href="/" className={styles.blue_card}>
+        <Link
+          href="/"
+          className={!isConnected ? styles.disabled : styles.blue_card}
+          aria-disabled={!isConnected}
+        >
           <LocalPrintshopOutlinedIcon style={{ marginRight: 0.5 }} />
           프린트하기
         </Link>

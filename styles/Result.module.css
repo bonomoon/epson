@@ -80,11 +80,50 @@
   height: auto;
 }
 
+.disabled {
+  background-color: #eeeeee;
+  color: #ffffff;
+  margin: 0.5rem;
+  flex-basis: 45%;
+  padding: 1rem 1.5rem 1rem 1.5rem;
+  text-align: left;
+  text-decoration: none;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  max-width: fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.connected_status {
+  color: #80ff74;
+  padding: 0.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .score_container {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+.device_connected_status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  background-color: #f5f5f5;
+  border-color: #80ff74;
+  border-radius: 6px;
+  border-style: solid;
+  max-width: 300px;
+  min-width: 175px;
 }
 
 .score {
