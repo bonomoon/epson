@@ -48,6 +48,7 @@ export default function ScoreInputPage() {
         </div>
         <div className={styles.nav_item}></div>
       </div>
+
       {/* 설명 */}
       <div className={styles.page_description}>
         <div>정간보 -&gt; 오선보</div>
