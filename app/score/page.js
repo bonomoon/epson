@@ -71,7 +71,7 @@ export default function Score() {
 
     const { email } = event.target;
 
-    const response = await fetch("/api/epson/auth", {
+    const res = await fetch("/api/epson/auth", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -79,9 +79,9 @@ export default function Score() {
       body: JSON.stringify({ email: email.value, password: "" }),
     });
 
-    const data = await response.json();
+    const data = await res.json();
 
-    if (response.ok) {
+    if (res.ok) {
       console.log("Authenticated successfully", data);
       setAuthToken(data);
       handleCloseModal();
@@ -101,7 +101,7 @@ export default function Score() {
           </label>
         </Container>
         <div className="h-full flex flex-col items-center justify-center">
-          {scoreFiles.length === 0 ? (
+          {(scoreFiles.length === 0 && authToken === null) ? (
             <Container className="flex flex-col text-center justify-center items-center gap-3 mb-24">
               <div className="mb-10">
                 <AddCircleOutlineOutlined
