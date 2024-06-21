@@ -14,36 +14,37 @@ export default function Score() {
   const [scoreFiles, setScoreFiles] = useState([]);
   const [authToken, setAuthToken] = useState(null);
 
-  const [isConnected, setIsConnected] = useState(false);
-  const [transport, setTransport] = useState("N/A");
-
   useEffect(() => {
     if (socket.connected) {
       onConnect();
     }
 
     function onConnect() {
-      setIsConnected(true);
-      setTransport(socket.io.engine.transport.name);
-
-      socket.io.engine.on("upgrade", (transport) => {
-        setTransport(transport.name);
-      });
+      socket.io.engine.on("upgrade", (transport) => {});
     }
 
-    function onDisconnect() {
-      setIsConnected(false);
-      setTransport("N/A");
+    function onDisconnect() {}
+
+    function onEpsonConnectScan(value) {
+      console.log(value);
     }
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
+    socket.on("epson-scan", onEpsonConnectScan);
 
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
+      socket.off("epson-scan", onEpsonConnectScan);
     };
   }, []);
+
+  useEffect(() => {
+    if (authToken !== null) {
+      registerEpsonConnectScan();
+    }
+  }, [authToken]);
 
   const handleFileInputChange = async (event) => {
     const file = event.target.files?.[0];
@@ -90,6 +91,23 @@ export default function Score() {
     }
   };
 
+  const registerEpsonConnectScan = async () => {
+    const res = await fetch(`/api/epson/devices/${authToken.subject_id}/destinations`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${authToken.access_token}`
+      },
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      console.log("Registered this destination successfully", data);
+    }
+
+    // TODO: Register에 실패하면 될 때까지 계속 등록??
+  };
+
   return (
     <div className="h-full ">
       <ScoreHeader className="absolute w-full z-30" auth={authToken} />
@@ -101,7 +119,7 @@ export default function Score() {
           </label>
         </Container>
         <div className="h-full flex flex-col items-center justify-center">
-          {(scoreFiles.length === 0 && authToken === null) ? (
+          {scoreFiles.length === 0 && authToken === null ? (
             <Container className="flex flex-col text-center justify-center items-center gap-3 mb-24">
               <div className="mb-10">
                 <AddCircleOutlineOutlined
@@ -139,7 +157,11 @@ export default function Score() {
           ) : (
             <>
               <div className="w-full h-full">
-                <ScoreCardSlider scores={scoreFiles} />
+                {scoreFiles.length === 0 ? (
+                  <div>hi</div>
+                ) : (
+                  <ScoreCardSlider scores={scoreFiles} />
+                )}
               </div>
               <Container className="flex flex-row w-full text-center justify-center items-center gap-3 mt-3 mb-5">
                 <label htmlFor="file-input">
@@ -179,9 +201,7 @@ export default function Score() {
         }}
       >
         <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
-          <h3 className="text-xl font-semibold text-blue-800">
-            EPSON CONNECT
-          </h3>
+          <h3 className="text-xl font-semibold text-blue-800">EPSON CONNECT</h3>
           <button
             type="button"
             className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"

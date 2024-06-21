@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import next from "next";
-import { Server } from "socket.io";
+import { initSocket } from "./socket.js";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -12,11 +12,15 @@ const handler = app.getRequestHandler();
 app.prepare().then(() => {
   const httpServer = createServer(handler);
 
-  const io = new Server(httpServer);
+  const io = initSocket(httpServer)
 
   io.on("connection", (socket) => {
     // ...
   });
+
+  // io.emit("/api/epson/scan", (socket) => {
+
+  // })
 
   httpServer
     .once("error", (err) => {
@@ -26,4 +30,8 @@ app.prepare().then(() => {
     .listen(port, () => {
       console.log(`> Ready on http://${hostname}:${port}`);
     });
+  
+  global.fetchFileWithEpsonConnect = (data) => {
+    io.emit("epson-scan", data);
+  }
 });
