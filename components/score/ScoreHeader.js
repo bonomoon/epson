@@ -37,7 +37,7 @@ export default function ScoreHeader({ className, auth }) {
             <img src="/logo.svg" alt="Haneum AI" className="h-8 w-auto" />
           </Link>
         </h1>
-        <button className="flex bg-slate-300 active:bg-slate-400 active:after:bg-slate-300 transform transition-colors rounded-lg px-5 py-1">
+        <button className="flex grow ml-10 bg-slate-300 active:bg-slate-400 active:after:bg-slate-300 transform transition-colors rounded-lg px-5 py-1">
           <div>기기 연결 안됨</div>
         </button>
         <div></div>

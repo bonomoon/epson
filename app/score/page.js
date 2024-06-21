@@ -93,7 +93,7 @@ export default function Score() {
   return (
     <div className="h-full ">
       <ScoreHeader className="absolute w-full z-30" auth={authToken} />
-      <div className="h-full flex flex-col pt-20">
+      <div className="h-full flex flex-col pt-16">
         <Container>
           <h3 className="font-extrabold text-3xl">정간보 변환</h3>
           <label className="text-gray-500">
@@ -102,7 +102,7 @@ export default function Score() {
         </Container>
         <div className="h-full flex flex-col items-center justify-center">
           {scoreFiles.length === 0 ? (
-            <Container className="flex flex-col text-center justify-center items-center gap-3 mb-56">
+            <Container className="flex flex-col text-center justify-center items-center gap-3 mb-24">
               <div className="mb-10">
                 <AddCircleOutlineOutlined
                   sx={{ fontSize: "120px" }}
