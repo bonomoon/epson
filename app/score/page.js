@@ -6,9 +6,7 @@ import ScoreCardSlider from "../../components/score/ScoreCardSlider";
 import ScoreHeader from "../../components/score/ScoreHeader";
 
 import { AddCircleOutlineOutlined } from "@mui/icons-material";
-import {
-  useSocket,
-} from "../../components/providers/socket-provider";
+import { useSocket } from "../../components/providers/socket-provider";
 
 export default function Score() {
   const { socket } = useSocket();
@@ -18,8 +16,21 @@ export default function Score() {
   const [authToken, setAuthToken] = useState(null);
 
   useEffect(() => {
-    function onEpsonConnectScan(value) {
-      console.log(value);
+    function onEpsonConnectScan(data) {
+      console.log(data);
+
+      const newFiles = Object.keys(data.files).map((key) => {
+        const file = data.files[key];
+        return {
+          name: file.originalFilename,
+          type: file.mimetype,
+          url: URL.createObjectURL(
+            new Blob([file.filepath], { type: file.mimetype })
+          ),
+        };
+      });
+
+      setScoreFiles((prevFiles) => [...prevFiles, ...newFiles]);
     }
 
     socket?.on("epson-scan", onEpsonConnectScan);
@@ -27,7 +38,7 @@ export default function Score() {
     return () => {
       socket?.off("epson-scan", onEpsonConnectScan);
     };
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     if (authToken !== null) {
@@ -37,10 +48,11 @@ export default function Score() {
 
   const handleFileInputChange = async (event) => {
     const file = event.target.files?.[0];
-
+    
     if (!file) return;
 
     const scoreFile = {
+      name: file.name,
       type: file.type,
       url: URL.createObjectURL(file),
     };
@@ -81,12 +93,15 @@ export default function Score() {
   };
 
   const registerEpsonConnectScan = async () => {
-    const res = await fetch(`/api/epson/devices/${authToken.subject_id}/destinations`, {
-      method: "POST",
-      headers: {
-        Authorization: `${authToken.token_type} ${authToken.access_token}`
-      },
-    });
+    const res = await fetch(
+      `/api/epson/devices/${authToken.subject_id}/destinations`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `${authToken.token_type} ${authToken.access_token}`,
+        },
+      }
+    );
 
     const data = await res.json();
 

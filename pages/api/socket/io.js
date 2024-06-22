@@ -6,10 +6,8 @@ export const config = {
   },
 };
 
-export default function SocketIoHandler(req, res) {
+export default function handler(req, res) {
   if (!res.socket.server.io) {
-    res.end();
-
     const io = new Server(res.socket.server, {
       path: "/api/socket/io",
       addTrailingSlash: false,
