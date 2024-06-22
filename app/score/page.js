@@ -16,17 +16,17 @@ export default function Score() {
   const [authToken, setAuthToken] = useState(null);
 
   useEffect(() => {
-    function onEpsonConnectScan(data) {
-      console.log(data);
+    function onEpsonConnectScan(files) {
+      const newFiles = files.map((file) => {
+        const byteData = atob(file.data);
+        const byteArray = new Uint8Array(byteData.length).map((_, i) =>
+          byteData.charCodeAt(i)
+        );
 
-      const newFiles = Object.keys(data.files).map((key) => {
-        const file = data.files[key];
         return {
-          name: file.originalFilename,
-          type: file.mimetype,
-          url: URL.createObjectURL(
-            new Blob([file.filepath], { type: file.mimetype })
-          ),
+          name: file.name,
+          type: file.type,
+          url: URL.createObjectURL(new Blob([byteArray], { type: file.type })),
         };
       });
 
@@ -48,7 +48,7 @@ export default function Score() {
 
   const handleFileInputChange = async (event) => {
     const file = event.target.files?.[0];
-    
+
     if (!file) return;
 
     const scoreFile = {
@@ -110,6 +110,28 @@ export default function Score() {
     }
 
     // TODO: Register에 실패하면 될 때까지 계속 등록??
+  };
+
+  const handleConvertFiles = async () => {
+    const formData = new FormData();
+
+    scoreFiles.forEach(async (file, index) => {
+      const res = await fetch(file.url);
+      const blob = await res.blob();
+      formData.append(`file${index}`, blob);
+    });
+
+    try {
+      const res = await fetch("/api/scores/convert?from=jungganbo&to=staff", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await res.json();
+      console.log("Conversion result:", result);
+    } catch (error) {
+      console.error("Error converting files:", error);
+    }
   };
 
   return (
@@ -186,7 +208,10 @@ export default function Score() {
                   className="hidden"
                   onChange={handleFileInputChange}
                 />
-                <button className="grow bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300">
+                <button
+                  className="grow bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+                  onClick={handleConvertFiles}
+                >
                   변환하기
                 </button>
               </Container>
