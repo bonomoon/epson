@@ -8,13 +8,11 @@ import { socket } from "../socket";
 
 import { AddCircleOutlineOutlined } from "@mui/icons-material";
 
-
 export default function Score() {
   const epsonAuthRef = useRef();
 
   const [scoreFiles, setScoreFiles] = useState([]);
-  const [isConnected, setIsConnected] = useState(false);
-  const [transport, setTransport] = useState("N/A");
+  const [authToken, setAuthToken] = useState(null);
 
   useEffect(() => {
     if (socket.connected) {
@@ -22,27 +20,31 @@ export default function Score() {
     }
 
     function onConnect() {
-      setIsConnected(true);
-      setTransport(socket.io.engine.transport.name);
-
-      socket.io.engine.on("upgrade", (transport) => {
-        setTransport(transport.name);
-      });
+      socket.io.engine.on("upgrade", (transport) => {});
     }
 
-    function onDisconnect() {
-      setIsConnected(false);
-      setTransport("N/A");
+    function onDisconnect() {}
+
+    function onEpsonConnectScan(value) {
+      console.log(value);
     }
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
+    socket.on("epson-scan", onEpsonConnectScan);
 
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
+      socket.off("epson-scan", onEpsonConnectScan);
     };
   }, []);
+
+  useEffect(() => {
+    if (authToken !== null) {
+      registerEpsonConnectScan();
+    }
+  }, [authToken]);
 
   const handleFileInputChange = async (event) => {
     const file = event.target.files?.[0];
@@ -67,31 +69,49 @@ export default function Score() {
 
   const handleEpsonConnectAuth = async (event) => {
     event.preventDefault();
-    
+
     const { email } = event.target;
 
-    const response = await fetch("/api/epson/auth", {
+    const res = await fetch("/api/epson/auth", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email: email.value, password: "" }),
     });
-      
-    const data = await response.json();
 
-    if (response.ok) {
+    const data = await res.json();
+
+    if (res.ok) {
       console.log("Authenticated successfully", data);
+      setAuthToken(data);
       handleCloseModal();
     } else {
       console.error("Authentication failed", data);
     }
-  }
+  };
+
+  const registerEpsonConnectScan = async () => {
+    const res = await fetch(`/api/epson/devices/${authToken.subject_id}/destinations`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${authToken.access_token}`
+      },
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      console.log("Registered this destination successfully", data);
+    }
+
+    // TODO: Register에 실패하면 될 때까지 계속 등록??
+  };
 
   return (
     <div className="h-full ">
-      <ScoreHeader className="absolute w-full z-30" />
-      <div className="h-full flex flex-col pt-20">
+      <ScoreHeader className="absolute w-full z-30" auth={authToken} />
+      <div className="h-full flex flex-col pt-16">
         <Container>
           <h3 className="font-extrabold text-3xl">정간보 변환</h3>
           <label className="text-gray-500">
@@ -99,17 +119,20 @@ export default function Score() {
           </label>
         </Container>
         <div className="h-full flex flex-col items-center justify-center">
-          {scoreFiles.length === 0 ? (
-            <Container className="flex flex-col text-center justify-center items-center gap-3 mb-56">
+          {scoreFiles.length === 0 && authToken === null ? (
+            <Container className="flex flex-col text-center justify-center items-center gap-3 mb-24">
               <div className="mb-10">
-                <AddCircleOutlineOutlined sx={{ fontSize: "120px" }} className="text-gray-400" />
+                <AddCircleOutlineOutlined
+                  sx={{ fontSize: "120px" }}
+                  className="text-gray-400"
+                />
                 <p>
                   Epson Scanner에 연결하여,
                   <br /> 자동으로 추가해보세요
                 </p>
               </div>
               <button
-                className="w-64 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+                className="w-64 bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300"
                 onClick={handleOpenModal}
               >
                 Epson Connect 연결
@@ -117,7 +140,7 @@ export default function Score() {
               <label htmlFor="file-input" className="w-64">
                 <button
                   id="file-select-btn"
-                  className="w-full bg-gray-300 hover:bg-gray-500 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+                  className="w-full bg-gray-300 active:bg-gray-500 active:after:bg-gray-300 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
                   onClick={() => document.getElementById("file-input").click()}
                 >
                   파일 가져오기
@@ -134,13 +157,17 @@ export default function Score() {
           ) : (
             <>
               <div className="w-full h-full">
-                <ScoreCardSlider scores={scoreFiles} />
+                {scoreFiles.length === 0 ? (
+                  <div>hi</div>
+                ) : (
+                  <ScoreCardSlider scores={scoreFiles} />
+                )}
               </div>
-              <Container className="flex flex-row w-full text-center justify-center items-center gap-3 mt-5 mb-10">
+              <Container className="flex flex-row w-full text-center justify-center items-center gap-3 mt-3 mb-5">
                 <label htmlFor="file-input">
                   <button
                     id="file-select-btn"
-                    className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+                    className="bg-gray-300 active:bg-gray-500 active:after:bg-gray-300 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
                     onClick={() =>
                       document.getElementById("file-input").click()
                     }
@@ -155,7 +182,7 @@ export default function Score() {
                   className="hidden"
                   onChange={handleFileInputChange}
                 />
-                <button className="grow bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300">
+                <button className="grow bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300">
                   변환하기
                 </button>
               </Container>
@@ -166,20 +193,18 @@ export default function Score() {
 
       <dialog
         ref={epsonAuthRef}
-        className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow dark:bg-gray-700"
+        className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
         onClick={(event) => {
           if (event.target === epsonAuthRef.current) {
             handleCloseModal();
           }
         }}
       >
-        <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-          <h3 className="text-xl font-semibold text-blue-800 dark:text-white">
-            EPSON CONNECT
-          </h3>
+        <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+          <h3 className="text-xl font-semibold text-blue-800">EPSON CONNECT</h3>
           <button
             type="button"
-            className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+            className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
             onClick={handleCloseModal}
           >
             <svg
@@ -205,7 +230,7 @@ export default function Score() {
             <div>
               <label
                 htmlFor="email"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                className="block mb-2 text-sm font-medium text-gray-900"
               >
                 Epson 제품에 연결된 이메일 ID
               </label>
@@ -213,7 +238,7 @@ export default function Score() {
                 type="email"
                 name="email"
                 id="email"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="name@print.epsonconnect.com"
                 required
               />
@@ -221,16 +246,16 @@ export default function Score() {
 
             <button
               type="submit"
-              className="w-full mt-7 mb-12 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-md px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="w-full mt-7 mb-12 text-white bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 focus:ring-4 focus:outline-none font-medium rounded-lg text-md px-5 py-2.5 text-center"
             >
               인증
             </button>
-            <div className="text-sm font-medium text-center text-gray-500 dark:text-gray-300">
+            <div className="text-sm font-medium text-center text-gray-500">
               미등록 제품인가요?{" "}
               <a
                 href="https://www.epsonconnect.com/guide/ko/html/p01.htm"
                 target="_blank"
-                className="text-blue-500 hover:underline dark:text-blue-500"
+                className="text-blue-500 hover:underline"
               >
                 Epson Connect 계정 연동
               </a>
