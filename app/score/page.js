@@ -7,13 +7,16 @@ import ScoreHeader from "../../components/score/ScoreHeader";
 
 import { AddCircleOutlineOutlined, Add as AddIcon } from "@mui/icons-material";
 import { useSocket } from "../../components/providers/socket-provider";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 export default function Score() {
   const { socket } = useSocket();
   const epsonAuthRef = useRef();
+  const epsonAuthUpdateRef = useRef();
 
   const [scoreFiles, setScoreFiles] = useState([]);
   const [authToken, setAuthToken] = useState(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
 
   useEffect(() => {
     function onEpsonConnectScan(files) {
@@ -65,18 +68,27 @@ export default function Score() {
     const deletedFile = updatedFiles.splice(index, 1);
     setScoreFiles(updatedFiles);
     URL.revokeObjectURL(deletedFile.url);
-  }
+  };
 
-  const handleOpenModal = () => {
+  const handleOpenAuthModal = () => {
     epsonAuthRef.current.showModal();
   };
 
-  const handleCloseModal = () => {
+  const handleCloseAuthModal = () => {
     epsonAuthRef.current.close();
+  };
+
+  const handleOpenAuthUpdateModal = () => {
+    epsonAuthUpdateRef.current.showModal();
+  };
+
+  const handleCloseAuthUpdateModal = () => {
+    epsonAuthUpdateRef.current.close();
   };
 
   const handleEpsonConnectAuth = async (event) => {
     event.preventDefault();
+    setIsAuthLoading(true);
 
     const { email } = event.target;
 
@@ -90,10 +102,12 @@ export default function Score() {
 
     const data = await res.json();
 
+    setIsAuthLoading(false);
+
     if (res.ok) {
       console.log("Authenticated successfully", data);
       setAuthToken(data);
-      handleCloseModal();
+      handleCloseAuthModal();
     } else {
       console.error("Authentication failed", data);
     }
@@ -122,11 +136,12 @@ export default function Score() {
   const handleConvertFiles = async () => {
     const formData = new FormData();
 
-    scoreFiles.forEach(async (file, index) => {
+    for (let i = 0; i < scoreFiles.length; ++i) {
+      const file = scoreFiles[i];
       const res = await fetch(file.url);
       const blob = await res.blob();
-      formData.append(`file${index}`, blob);
-    });
+      formData.append(`file-${i}`, blob, file.name);
+    }
 
     try {
       const res = await fetch("/api/scores/convert?from=jungganbo&to=staff", {
@@ -136,7 +151,7 @@ export default function Score() {
 
       const result = await res.json();
       console.log("Conversion result:", result);
-      
+
       scoreFiles.forEach((file) => {
         URL.revokeObjectURL(file.url);
       });
@@ -147,7 +162,12 @@ export default function Score() {
 
   return (
     <div className="h-full relative">
-      <ScoreHeader className="absolute w-full m-auto left-0 right-0 z-30" auth={authToken} onClick={handleOpenModal} />
+      <ScoreHeader
+        className="absolute w-full m-auto left-0 right-0 z-30"
+        auth={authToken}
+        onAuthClick={handleOpenAuthModal}
+        onAuthUpdateClick={handleOpenAuthUpdateModal}
+      />
       <div className="h-full flex flex-col pt-16">
         <Container>
           <h3 className="font-extrabold text-3xl">정간보 변환</h3>
@@ -170,7 +190,7 @@ export default function Score() {
               </div>
               <button
                 className="w-64 bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300"
-                onClick={handleOpenModal}
+                onClick={handleOpenAuthModal}
               >
                 Epson Connect 연결
               </button>
@@ -212,7 +232,10 @@ export default function Score() {
                     </p>
                   </div>
                 ) : (
-                  <ScoreCardSlider scores={scoreFiles} onDelete={handleFileDelete}/>
+                  <ScoreCardSlider
+                    scores={scoreFiles}
+                    onDelete={handleFileDelete}
+                  />
                 )}
               </div>
               <Container className="flex flex-row w-full text-center justify-center items-center gap-3 mt-3 mb-5">
@@ -251,7 +274,7 @@ export default function Score() {
         className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
         onClick={(event) => {
           if (event.target === epsonAuthRef.current) {
-            handleCloseModal();
+            handleCloseAuthModal();
           }
         }}
       >
@@ -260,7 +283,7 @@ export default function Score() {
           <button
             type="button"
             className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-            onClick={handleCloseModal}
+            onClick={handleCloseAuthModal}
           >
             <svg
               className="w-3 h-3"
@@ -301,9 +324,9 @@ export default function Score() {
 
             <button
               type="submit"
-              className="w-full mt-7 mb-12 text-white bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 focus:ring-4 focus:outline-none font-medium rounded-lg text-md px-5 py-2.5 text-center"
+              className="w-full mt-7 mb-12 items-center justify-center flex text-white bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 focus:ring-4 focus:outline-none font-medium rounded-lg text-md px-5 py-2.5 text-center"
             >
-              인증
+              {isAuthLoading ? <LoadingSpinner className="w-6 h-6" /> : "인증"}
             </button>
             <div className="text-sm font-medium text-center text-gray-500">
               미등록 제품인가요?{" "}
@@ -316,6 +339,81 @@ export default function Score() {
               </a>
             </div>
           </form>
+        </div>
+      </dialog>
+
+      <dialog
+        ref={epsonAuthUpdateRef}
+        tabindex="-1"
+        className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
+        onClick={(event) => {
+          if (event.target === epsonAuthUpdateRef.current) {
+            handleCloseAuthUpdateModal();
+          }
+        }}
+      >
+        <div class="relative p-4 w-full max-w-md max-h-full">
+          <button
+            type="button"
+            class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+            onClick={handleCloseAuthUpdateModal}
+          >
+            <svg
+              class="w-3 h-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 14 14"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+              />
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+          <div class="p-4 md:p-5 text-center">
+            <svg
+              class="mx-auto mb-4 text-gray-400 w-12 h-12"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 20 20"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+              />
+            </svg>
+            <h3 class="mb-5 text-lg font-normal text-base text-gray-500 dark:text-gray-400">
+              연결된 Epson Connect 제품 연동을<br/>다시 하시겠습니까?
+            </h3>
+            <button
+              data-modal-hide="popup-modal"
+              type="button"
+              class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+              onClick={() => {
+                handleCloseAuthUpdateModal();
+                handleOpenAuthModal();
+              }}
+            >
+              재인증
+            </button>
+            <button
+              data-modal-hide="popup-modal"
+              type="button"
+              class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
+              onClick={handleCloseAuthUpdateModal}
+            >
+              취소
+            </button>
+          </div>
         </div>
       </dialog>
     </div>
