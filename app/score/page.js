@@ -1,49 +1,53 @@
-"use client";
+"use client"
 
-import { useEffect, useRef, useState } from "react";
-import Container from "../../components/Container";
-import ScoreCardSlider from "../../components/score/ScoreCardSlider";
-import ScoreHeader from "../../components/score/ScoreHeader";
+import { useEffect, useRef, useState } from "react"
+import Container from "../../components/Container"
+import ScoreCardSlider from "../../components/score/ScoreCardSlider"
+import ScoreHeader from "../../components/score/ScoreHeader"
+import ProcessView from "../../components/process/ProcessView"
+import ResultView from "../../components/result/ResultView"
 
-import { AddCircleOutlineOutlined } from "@mui/icons-material";
+import { AddCircleOutlineOutlined } from "@mui/icons-material"
 
 export default function Score() {
-  const epsonAuthRef = useRef();
+  const epsonAuthRef = useRef()
 
-  const [scoreFiles, setScoreFiles] = useState([]);
-  const [authToken, setAuthToken] = useState(null);
+  // 0: score, 1: process, 2: result
+  const [status, setIsCompleted] = useState(0)
+  const [scoreFiles, setScoreFiles] = useState([])
+  const [authToken, setAuthToken] = useState(null)
 
   useEffect(() => {
     if (authToken !== null) {
-      registerEpsonConnectScan();
+      registerEpsonConnectScan()
     }
-  }, [authToken]);
+  }, [authToken])
 
   const handleFileInputChange = async (event) => {
-    const file = event.target.files?.[0];
+    const file = event.target.files?.[0]
 
-    if (!file) return;
+    if (!file) return
 
     const scoreFile = {
       type: file.type,
       url: URL.createObjectURL(file),
-    };
+    }
 
-    setScoreFiles([...scoreFiles, scoreFile]);
-  };
+    setScoreFiles([...scoreFiles, scoreFile])
+  }
 
   const handleOpenModal = () => {
-    epsonAuthRef.current.showModal();
-  };
+    epsonAuthRef.current.showModal()
+  }
 
   const handleCloseModal = () => {
-    epsonAuthRef.current.close();
-  };
+    epsonAuthRef.current.close()
+  }
 
   const handleEpsonConnectAuth = async (event) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    const { email } = event.target;
+    const { email } = event.target
 
     const res = await fetch("/api/epson/auth", {
       method: "POST",
@@ -51,39 +55,46 @@ export default function Score() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email: email.value, password: "" }),
-    });
+    })
 
-    const data = await res.json();
+    const data = await res.json()
 
     if (res.ok) {
-      console.log("Authenticated successfully", data);
-      setAuthToken(data);
-      handleCloseModal();
+      console.log("Authenticated successfully", data)
+      setAuthToken(data)
+      handleCloseModal()
     } else {
-      console.error("Authentication failed", data);
+      console.error("Authentication failed", data)
     }
-  };
+  }
 
   const registerEpsonConnectScan = async () => {
-    const res = await fetch(`/api/epson/devices/${authToken.subject_id}/destinations`, {
-      method: "POST",
-      headers: {
-        Authorization: `${authToken.token_type} ${authToken.access_token}`
-      },
-    });
+    const res = await fetch(
+      `/api/epson/devices/${authToken.subject_id}/destinations`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `${authToken.token_type} ${authToken.access_token}`,
+        },
+      }
+    )
 
-    const data = await res.json();
+    const data = await res.json()
 
     if (res.ok) {
-      console.log("Registered this destination successfully", data);
+      console.log("Registered this destination successfully", data)
     }
 
     // TODO: Register에 실패하면 될 때까지 계속 등록??
-  };
+  }
 
   return (
     <div className="h-full ">
-      <ScoreHeader className="absolute w-full z-30" auth={authToken} />
+      <ScoreHeader
+        className="absolute w-full z-30"
+        auth={authToken}
+        handleClick={handleOpenModal}
+      />
       <div className="h-full flex flex-col pt-16">
         <Container>
           <h3 className="font-extrabold text-3xl">정간보 변환</h3>
@@ -91,56 +102,31 @@ export default function Score() {
             * 현재 단소 악보 및 오선보 변환 지원
           </label>
         </Container>
-        <div className="h-full flex flex-col items-center justify-center">
-          {scoreFiles.length === 0 && authToken === null ? (
-            <Container className="flex flex-col text-center justify-center items-center gap-3 mb-24">
-              <div className="mb-10">
-                <AddCircleOutlineOutlined
-                  sx={{ fontSize: "120px" }}
-                  className="text-gray-400"
-                />
-                <p>
-                  Epson Scanner에 연결하여,
-                  <br /> 자동으로 추가해보세요
-                </p>
-              </div>
-              <button
-                className="w-64 bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300"
-                onClick={handleOpenModal}
-              >
-                Epson Connect 연결
-              </button>
-              <label htmlFor="file-input" className="w-64">
+
+        {status === 0 && (
+          <div className="h-full flex flex-col items-center justify-center">
+            {scoreFiles.length === 0 && authToken === null ? (
+              <Container className="flex flex-col text-center justify-center items-center gap-3 mb-24">
+                <div className="mb-10">
+                  <AddCircleOutlineOutlined
+                    sx={{ fontSize: "120px" }}
+                    className="text-gray-400"
+                  />
+                  <p>
+                    Epson Scanner에 연결하여,
+                    <br /> 자동으로 추가해보세요
+                  </p>
+                </div>
                 <button
-                  id="file-select-btn"
-                  className="w-full bg-gray-300 active:bg-gray-500 active:after:bg-gray-300 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
-                  onClick={() => document.getElementById("file-input").click()}
+                  className="w-64 bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+                  onClick={handleOpenModal}
                 >
-                  파일 가져오기
+                  Epson Connect 연결
                 </button>
-              </label>
-              <input
-                id="file-input"
-                type="file"
-                multiple
-                className="hidden"
-                onChange={handleFileInputChange}
-              />
-            </Container>
-          ) : (
-            <>
-              <div className="w-full h-full">
-                {scoreFiles.length === 0 ? (
-                  <div>hi</div>
-                ) : (
-                  <ScoreCardSlider scores={scoreFiles} />
-                )}
-              </div>
-              <Container className="flex flex-row w-full text-center justify-center items-center gap-3 mt-3 mb-5">
-                <label htmlFor="file-input">
+                <label htmlFor="file-input" className="w-64">
                   <button
                     id="file-select-btn"
-                    className="bg-gray-300 active:bg-gray-500 active:after:bg-gray-300 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+                    className="w-full bg-gray-300 active:bg-gray-500 active:after:bg-gray-300 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
                     onClick={() =>
                       document.getElementById("file-input").click()
                     }
@@ -155,13 +141,47 @@ export default function Score() {
                   className="hidden"
                   onChange={handleFileInputChange}
                 />
-                <button className="grow bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300">
-                  변환하기
-                </button>
               </Container>
-            </>
-          )}
-        </div>
+            ) : (
+              <>
+                <div className="w-full h-full">
+                  {scoreFiles.length === 0 ? (
+                    <div>hi</div>
+                  ) : (
+                    <ScoreCardSlider scores={scoreFiles} />
+                  )}
+                </div>
+                <Container className="flex flex-row w-full text-center justify-center items-center gap-3 mt-3 mb-5">
+                  <label htmlFor="file-input">
+                    <button
+                      id="file-select-btn"
+                      className="bg-gray-300 active:bg-gray-500 active:after:bg-gray-300 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+                      onClick={() =>
+                        document.getElementById("file-input").click()
+                      }
+                    >
+                      파일 가져오기
+                    </button>
+                  </label>
+                  <input
+                    id="file-input"
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={handleFileInputChange}
+                  />
+                  <button className="grow bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300">
+                    변환하기
+                  </button>
+                </Container>
+              </>
+            )}
+          </div>
+        )}
+
+        {status === 1 && <ProcessView />}
+
+        {status === 2 && <ResultView isConnected={authToken != null} />}
       </div>
 
       <dialog
@@ -169,7 +189,7 @@ export default function Score() {
         className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
         onClick={(event) => {
           if (event.target === epsonAuthRef.current) {
-            handleCloseModal();
+            handleCloseModal()
           }
         }}
       >
@@ -237,5 +257,5 @@ export default function Score() {
         </div>
       </dialog>
     </div>
-  );
+  )
 }
