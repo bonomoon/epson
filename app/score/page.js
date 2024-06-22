@@ -6,12 +6,28 @@ import ScoreCardSlider from "../../components/score/ScoreCardSlider";
 import ScoreHeader from "../../components/score/ScoreHeader";
 
 import { AddCircleOutlineOutlined } from "@mui/icons-material";
+import {
+  useSocket,
+} from "../../components/providers/socket-provider";
 
 export default function Score() {
+  const { socket } = useSocket();
   const epsonAuthRef = useRef();
 
   const [scoreFiles, setScoreFiles] = useState([]);
   const [authToken, setAuthToken] = useState(null);
+
+  useEffect(() => {
+    function onEpsonConnectScan(value) {
+      console.log(value);
+    }
+
+    socket?.on("epson-scan", onEpsonConnectScan);
+
+    return () => {
+      socket?.off("epson-scan", onEpsonConnectScan);
+    };
+  }, []);
 
   useEffect(() => {
     if (authToken !== null) {
