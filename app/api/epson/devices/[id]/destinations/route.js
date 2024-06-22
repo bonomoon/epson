@@ -11,7 +11,7 @@ export async function POST(req, { params }) {
         "Content-Type": "application/json; charset=UTF-8",
       },
       body: JSON.stringify({
-        alias_name: "I_love_Yunsu",
+        alias_name: "Haneum AI",
         type: "url",
         destination: `${host}/api/epson/scan`,
       }),
