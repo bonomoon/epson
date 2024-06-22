@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Container from "../Container"
 
-export default function ScoreHeader({ className, auth, handleClick }) {
+export default function ScoreHeader({ className, auth, onClick }) {
   const [epsonDeviceInfo, setEpsonDeviceInfo] = useState(null)
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function ScoreHeader({ className, auth, handleClick }) {
           {epsonDeviceInfo === null ? (
             <button
               className="flex justify-center items-center text-xs w-full bg-slate-200 active:bg-slate-300 active:after:bg-slate-200 border border-gray-300 transform transition-colors rounded-2xl px-2 py-2 duration-300"
-              onClick={handleClick}
+              onClick={onClick}
             >
               <div className="absolute left-2 w-3 h-3 rounded-full bg-gray-500"></div>
               <div className="text-center">Epson Connect 연결하기</div>

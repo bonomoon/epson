@@ -60,6 +60,12 @@ export default function Score() {
     setScoreFiles([...scoreFiles, scoreFile]);
   };
 
+  const handleFileDelete = (index) => {
+    const updatedFiles = [...scoreFiles];
+    updatedFiles.splice(index, 1);
+    setScoreFiles(updatedFiles);
+  }
+
   const handleOpenModal = () => {
     epsonAuthRef.current.showModal();
   };
@@ -135,8 +141,8 @@ export default function Score() {
   };
 
   return (
-    <div className="h-full ">
-      <ScoreHeader className="absolute w-full z-30" auth={authToken} />
+    <div className="h-full relative">
+      <ScoreHeader className="absolute w-full m-auto left-0 right-0 z-30" auth={authToken} onClick={handleOpenModal} />
       <div className="h-full flex flex-col pt-16">
         <Container>
           <h3 className="font-extrabold text-3xl">정간보 변환</h3>
@@ -201,7 +207,7 @@ export default function Score() {
                     </p>
                   </div>
                 ) : (
-                  <ScoreCardSlider scores={scoreFiles} />
+                  <ScoreCardSlider scores={scoreFiles} onDelete={handleFileDelete}/>
                 )}
               </div>
               <Container className="flex flex-row w-full text-center justify-center items-center gap-3 mt-3 mb-5">
