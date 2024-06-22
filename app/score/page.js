@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Container from "../../components/Container";
 import ScoreCardSlider from "../../components/score/ScoreCardSlider";
 import ScoreHeader from "../../components/score/ScoreHeader";
-import { socket } from "../socket";
 
 import { AddCircleOutlineOutlined } from "@mui/icons-material";
 
@@ -13,32 +12,6 @@ export default function Score() {
 
   const [scoreFiles, setScoreFiles] = useState([]);
   const [authToken, setAuthToken] = useState(null);
-
-  useEffect(() => {
-    if (socket.connected) {
-      onConnect();
-    }
-
-    function onConnect() {
-      socket.io.engine.on("upgrade", (transport) => {});
-    }
-
-    function onDisconnect() {}
-
-    function onEpsonConnectScan(value) {
-      console.log(value);
-    }
-
-    socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
-    socket.on("epson-scan", onEpsonConnectScan);
-
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
-      socket.off("epson-scan", onEpsonConnectScan);
-    };
-  }, []);
 
   useEffect(() => {
     if (authToken !== null) {
@@ -95,7 +68,7 @@ export default function Score() {
     const res = await fetch(`/api/epson/devices/${authToken.subject_id}/destinations`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${authToken.access_token}`
+        Authorization: `${authToken.token_type} ${authToken.access_token}`
       },
     });
 

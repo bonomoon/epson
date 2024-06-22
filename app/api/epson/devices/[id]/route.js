@@ -1,6 +1,8 @@
 export async function GET(req, { params }) {
+  const apiHost = process.env.EPSON_API_HOST;
+
   const res = await fetch(
-    `https://api.epsonconnect.com/api/1/printing/printers/${params.id}`,
+    `${apiHost}/printing/printers/${params.id}`,
     {
       method: "GET",
       headers: req.headers,

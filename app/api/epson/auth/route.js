@@ -1,13 +1,14 @@
 export async function POST(req) {
   const { email, password } = await req.json();
   
+  const apiHost = process.env.EPSON_API_HOST;
   const clientId = process.env.EPSON_CLIENT_ID;
   const clientSecret = process.env.EPSON_CLIENT_SECRET;
 
   const authHeader = `Basic ${btoa(`${clientId}:${clientSecret}`)}`;
   
   const res = await fetch(
-    "https://api.epsonconnect.com/api/1/printing/oauth2/auth/token?subject=printer",
+    `${apiHost}/printing/oauth2/auth/token?subject=printer`,
     {
       method: "POST",
       headers: {
