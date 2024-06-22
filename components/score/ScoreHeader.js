@@ -17,7 +17,7 @@ export default function ScoreHeader({ className, auth }) {
     const res = await fetch(`/api/epson/devices/${auth.subject_id}`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${auth.access_token}`,
+        Authorization: `${auth.token_type} ${auth.access_token}`,
       },
     });
 
