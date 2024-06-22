@@ -5,7 +5,7 @@ import Container from "../../components/Container";
 import ScoreCardSlider from "../../components/score/ScoreCardSlider";
 import ScoreHeader from "../../components/score/ScoreHeader";
 
-import { AddCircleOutlineOutlined } from "@mui/icons-material";
+import { AddCircleOutlineOutlined, Add as AddIcon } from "@mui/icons-material";
 import { useSocket } from "../../components/providers/socket-provider";
 
 export default function Score() {
@@ -184,7 +184,22 @@ export default function Score() {
             <>
               <div className="w-full h-full">
                 {scoreFiles.length === 0 ? (
-                  <div>hi</div>
+                  <div className="flex flex-col justify-center items-center w-full h-full overflow-hidden gap-5 py-5">
+                    <div
+                      className={`flex items-center justify-center active:bg-gray-200 active:after:bg-inherit w-2/3 h-2/3 border-2 border-dashed border-gray-400 rounded-lg shadow`}
+                      onClick={() =>
+                        document.getElementById("file-input").click()
+                      }
+                    >
+                      <AddIcon
+                        sx={{ fontSize: "4rem" }}
+                        className="text-gray-400"
+                      />
+                    </div>
+                    <p className="text-sm text-center text-gray-700">
+                      등록된 기기에서 스캔하면, 자동으로 추가됩니다.
+                    </p>
+                  </div>
                 ) : (
                   <ScoreCardSlider scores={scoreFiles} />
                 )}

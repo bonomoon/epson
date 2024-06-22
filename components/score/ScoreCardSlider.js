@@ -56,7 +56,7 @@ export default function ScoreCardSlider({ scores }) {
         <div
           key={index}
           id={`item-${index}`}
-          className={`absolute m-auto top-0 bottom-0 left-0 right-0 text-justify bg-white w-2/3 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ${styles.item}`}
+          className={`absolute m-auto top-0 bottom-0 left-0 right-0 text-justify bg-white w-2/3 border border-gray-200 rounded-lg shadow ${styles.item}`}
         >
           <img
             src={item.url}
