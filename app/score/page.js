@@ -392,7 +392,7 @@ export default function Score() {
               />
             </svg>
             <h3 class="mb-5 text-lg font-normal text-base text-gray-500 dark:text-gray-400">
-              연결된 Epson Connect 제품 연동을<br/>다시 하시겠습니까?
+              기존 Epson Connect 제품 연동을<br/>다시 하시겠습니까?
             </h3>
             <button
               data-modal-hide="popup-modal"

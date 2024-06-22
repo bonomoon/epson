@@ -71,7 +71,9 @@ export default function ScoreHeader({ className, auth, onAuthClick, onAuthUpdate
               ) : (
                 <div className="absolute left-2 w-3 h-3 rounded-full bg-red-500"></div>
               )}
-              <div className="text-center">{`${epsonDeviceInfo.printer_name}-${epsonDeviceInfo.serial_no}`}</div>
+              <div className="text-center">
+                {epsonDeviceInfo.printer_name ? `${epsonDeviceInfo.printer_name}-${epsonDeviceInfo.serial_no}` : "등록된 기기가 존재하지 않습니다."}
+              </div>
             </button>
           )}
         </div>
