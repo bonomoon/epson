@@ -27,7 +27,7 @@ export default function Home() {
             정간보 변환 &rarr;
           </h3>
           <p className="mb-3 font-normal text-gray-500">
-            정간보를 오선보로, 오선보를 정간보로 역보해보세요.
+            정간보를 오선보로, 오선보를 정간보로 역보하는 OCR 기반 AI 서비스
           </p>
           <label className="font-semibold text-sm text-blue-500">
             * Epson Connect 원격 스캔 지원
