@@ -11,6 +11,7 @@
     "@mui/icons-material": "^5.15.20",
     "@mui/material": "^5.15.20",
     "formidable": "^3.5.1",
+    "fs": "^0.0.1-security",
     "next": "latest",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

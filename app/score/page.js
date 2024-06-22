@@ -5,7 +5,7 @@ import Container from "../../components/Container";
 import ScoreCardSlider from "../../components/score/ScoreCardSlider";
 import ScoreHeader from "../../components/score/ScoreHeader";
 
-import { AddCircleOutlineOutlined } from "@mui/icons-material";
+import { AddCircleOutlineOutlined, Add as AddIcon } from "@mui/icons-material";
 import { useSocket } from "../../components/providers/socket-provider";
 
 export default function Score() {
@@ -16,17 +16,17 @@ export default function Score() {
   const [authToken, setAuthToken] = useState(null);
 
   useEffect(() => {
-    function onEpsonConnectScan(data) {
-      console.log(data);
+    function onEpsonConnectScan(files) {
+      const newFiles = files.map((file) => {
+        const byteData = atob(file.data);
+        const byteArray = new Uint8Array(byteData.length).map((_, i) =>
+          byteData.charCodeAt(i)
+        );
 
-      const newFiles = Object.keys(data.files).map((key) => {
-        const file = data.files[key];
         return {
-          name: file.originalFilename,
-          type: file.mimetype,
-          url: URL.createObjectURL(
-            new Blob([file.filepath], { type: file.mimetype })
-          ),
+          name: file.name,
+          type: file.type,
+          url: URL.createObjectURL(new Blob([byteArray], { type: file.type })),
         };
       });
 
@@ -48,7 +48,7 @@ export default function Score() {
 
   const handleFileInputChange = async (event) => {
     const file = event.target.files?.[0];
-    
+
     if (!file) return;
 
     const scoreFile = {
@@ -59,6 +59,12 @@ export default function Score() {
 
     setScoreFiles([...scoreFiles, scoreFile]);
   };
+
+  const handleFileDelete = (index) => {
+    const updatedFiles = [...scoreFiles];
+    updatedFiles.splice(index, 1);
+    setScoreFiles(updatedFiles);
+  }
 
   const handleOpenModal = () => {
     epsonAuthRef.current.showModal();
@@ -112,9 +118,31 @@ export default function Score() {
     // TODO: Register에 실패하면 될 때까지 계속 등록??
   };
 
+  const handleConvertFiles = async () => {
+    const formData = new FormData();
+
+    scoreFiles.forEach(async (file, index) => {
+      const res = await fetch(file.url);
+      const blob = await res.blob();
+      formData.append(`file${index}`, blob);
+    });
+
+    try {
+      const res = await fetch("/api/scores/convert?from=jungganbo&to=staff", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await res.json();
+      console.log("Conversion result:", result);
+    } catch (error) {
+      console.error("Error converting files:", error);
+    }
+  };
+
   return (
-    <div className="h-full ">
-      <ScoreHeader className="absolute w-full z-30" auth={authToken} />
+    <div className="h-full relative">
+      <ScoreHeader className="absolute w-full m-auto left-0 right-0 z-30" auth={authToken} onClick={handleOpenModal} />
       <div className="h-full flex flex-col pt-16">
         <Container>
           <h3 className="font-extrabold text-3xl">정간보 변환</h3>
@@ -162,9 +190,24 @@ export default function Score() {
             <>
               <div className="w-full h-full">
                 {scoreFiles.length === 0 ? (
-                  <div>hi</div>
+                  <div className="flex flex-col justify-center items-center w-full h-full overflow-hidden gap-5 py-5">
+                    <div
+                      className={`flex items-center justify-center active:bg-gray-200 active:after:bg-inherit w-2/3 h-2/3 border-2 border-dashed border-gray-400 rounded-lg shadow`}
+                      onClick={() =>
+                        document.getElementById("file-input").click()
+                      }
+                    >
+                      <AddIcon
+                        sx={{ fontSize: "4rem" }}
+                        className="text-gray-400"
+                      />
+                    </div>
+                    <p className="text-sm text-center text-gray-700">
+                      등록된 기기에서 스캔하면, 자동으로 추가됩니다.
+                    </p>
+                  </div>
                 ) : (
-                  <ScoreCardSlider scores={scoreFiles} />
+                  <ScoreCardSlider scores={scoreFiles} onDelete={handleFileDelete}/>
                 )}
               </div>
               <Container className="flex flex-row w-full text-center justify-center items-center gap-3 mt-3 mb-5">
@@ -186,7 +229,10 @@ export default function Score() {
                   className="hidden"
                   onChange={handleFileInputChange}
                 />
-                <button className="grow bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300">
+                <button
+                  className="grow bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+                  onClick={handleConvertFiles}
+                >
                   변환하기
                 </button>
               </Container>
