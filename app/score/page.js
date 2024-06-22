@@ -62,8 +62,9 @@ export default function Score() {
 
   const handleFileDelete = (index) => {
     const updatedFiles = [...scoreFiles];
-    updatedFiles.splice(index, 1);
+    const deletedFile = updatedFiles.splice(index, 1);
     setScoreFiles(updatedFiles);
+    URL.revokeObjectURL(deletedFile.url);
   }
 
   const handleOpenModal = () => {
@@ -135,6 +136,10 @@ export default function Score() {
 
       const result = await res.json();
       console.log("Conversion result:", result);
+      
+      scoreFiles.forEach((file) => {
+        URL.revokeObjectURL(file.url);
+      });
     } catch (error) {
       console.error("Error converting files:", error);
     }
