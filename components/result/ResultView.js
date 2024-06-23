@@ -16,6 +16,8 @@ export default function ResultPage({ isConnected }) {
 
   const handlePrint = async () => {
     const image = await fetch(imageLink).then((res) => res.blob())
+    const images = [image, image]
+
     const res = await fetch(`/api/epson/print/${authToken.subject_id}`, {
       method: "POST",
       headers: {

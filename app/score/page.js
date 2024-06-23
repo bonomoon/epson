@@ -21,7 +21,7 @@ export default function Score() {
   const [isAuthLoading, setIsAuthLoading] = useState(false)
 
   // 0: score, 1: process, 2: result
-  const [status, setIsCompleted] = useState(0)
+  const [status, setStatus] = useState(0)
 
   useEffect(() => {
     function onEpsonConnectScan(files) {
@@ -139,29 +139,31 @@ export default function Score() {
   }
 
   const handleConvertFiles = async () => {
-    const formData = new FormData()
-
     for (let i = 0; i < scoreFiles.length; ++i) {
+      const formData = new FormData()
+
       const file = scoreFiles[i]
       const res = await fetch(file.url)
       const blob = await res.blob()
-      formData.append(`file-${i}`, blob, file.name)
-    }
+      formData.append(`file`, blob, file.name)
 
-    try {
-      const res = await fetch("/api/scores/convert?from=jungganbo&to=staff", {
-        method: "POST",
-        body: formData,
-      })
+      try {
+        const res = await fetch("http://219.250.98.46:8000/upload-image/", {
+          method: "POST",
+          body: formData,
+        })
 
-      const result = await res.json()
-      console.log("Conversion result:", result)
+        const result = await res.json()
+        console.log("Conversion result:", result)
 
-      scoreFiles.forEach((file) => {
-        URL.revokeObjectURL(file.url)
-      })
-    } catch (error) {
-      console.error("Error converting files:", error)
+        scoreFiles.forEach((file) => {
+          URL.revokeObjectURL(file.url)
+        })
+
+        setStatus(1)
+      } catch (error) {
+        console.error("Error converting files:", error)
+      }
     }
   }
 
@@ -277,7 +279,7 @@ export default function Score() {
           </div>
         )}
 
-        {status === 1 && <ProcessView />}
+        {status === 1 && <ProcessView setStatus={setStatus} />}
 
         {status === 2 && <ResultView isConnected={authToken != null} />}
       </div>

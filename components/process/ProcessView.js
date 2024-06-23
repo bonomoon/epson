@@ -1,11 +1,15 @@
 import styles from "../../styles/Process.module.css"
 import { useState, useEffect } from "react"
-export default function ProcessView() {
+export default function ProcessView({ setStatus }) {
   const [progress, setProgress] = useState(0)
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress((prev) => (prev >= 100 ? 0 : prev + 1))
     }, 100)
+    if (progress >= 100) {
+      clearInterval(interval)
+      setStatus(2)
+    }
     return () => clearInterval(interval)
   })
   const msg = [
