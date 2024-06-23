@@ -1,101 +1,104 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import Container from "../../components/Container"
-import ScoreCardSlider from "../../components/score/ScoreCardSlider"
-import ScoreHeader from "../../components/score/ScoreHeader"
-import ProcessView from "../../components/process/ProcessView"
-import ResultView from "../../components/result/ResultView"
+import { useEffect, useRef, useState } from "react";
+import Container from "../../components/Container";
+import ScoreCardSlider from "../../components/score/ScoreCardSlider";
+import ScoreHeader from "../../components/score/ScoreHeader";
+import ProcessView from "../../components/process/ProcessView";
+import ResultView from "../../components/result/ResultView";
 
-import { AddCircleOutlineOutlined, Add as AddIcon } from "@mui/icons-material"
-import { useSocket } from "../../components/providers/socket-provider"
-import LoadingSpinner from "../../components/LoadingSpinner"
+import { AddCircleOutlineOutlined, Add as AddIcon } from "@mui/icons-material";
+import { useSocket } from "../../components/providers/socket-provider";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 export default function Score() {
-  const { socket } = useSocket()
-  const epsonAuthRef = useRef()
-  const epsonAuthUpdateRef = useRef()
+  const { socket } = useSocket();
+  const epsonAuthRef = useRef();
+  const epsonAuthUpdateRef = useRef();
 
-  const [scoreFiles, setScoreFiles] = useState([])
-  const [authToken, setAuthToken] = useState(null)
-  const [isAuthLoading, setIsAuthLoading] = useState(false)
+  const [scoreFiles, setScoreFiles] = useState([]);
+  const [authToken, setAuthToken] = useState(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
+
+  const [scoreArray, setScoreArray] = useState([[]]);
+  const [progress, setProgress] = useState(null);
 
   // 0: score, 1: process, 2: result
-  const [status, setStatus] = useState(0)
+  const [status, setStatus] = useState(0);
 
   useEffect(() => {
     function onEpsonConnectScan(files) {
       const newFiles = files.map((file) => {
-        const byteData = atob(file.data)
+        const byteData = atob(file.data);
         const byteArray = new Uint8Array(byteData.length).map((_, i) =>
           byteData.charCodeAt(i)
-        )
+        );
 
         return {
           name: file.name,
           type: file.type,
           url: URL.createObjectURL(new Blob([byteArray], { type: file.type })),
-        }
-      })
+        };
+      });
 
-      setScoreFiles((prevFiles) => [...prevFiles, ...newFiles])
+      setScoreFiles((prevFiles) => [...prevFiles, ...newFiles]);
     }
 
-    socket?.on("epson-scan", onEpsonConnectScan)
+    socket?.on("epson-scan", onEpsonConnectScan);
 
     return () => {
-      socket?.off("epson-scan", onEpsonConnectScan)
-    }
-  }, [socket])
+      socket?.off("epson-scan", onEpsonConnectScan);
+    };
+  }, [socket]);
 
   useEffect(() => {
     if (authToken !== null) {
-      registerEpsonConnectScan()
+      registerEpsonConnectScan();
     }
-  }, [authToken])
+  }, [authToken]);
 
   const handleFileInputChange = async (event) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
 
-    if (!file) return
+    if (!file) return;
 
     const scoreFile = {
       name: file.name,
       type: file.type,
       url: URL.createObjectURL(file),
-    }
+    };
 
-    setScoreFiles([...scoreFiles, scoreFile])
-  }
+    setScoreFiles([...scoreFiles, scoreFile]);
+  };
 
   const handleFileDelete = (index) => {
-    const updatedFiles = [...scoreFiles]
-    const deletedFile = updatedFiles.splice(index, 1)
-    setScoreFiles(updatedFiles)
-    URL.revokeObjectURL(deletedFile.url)
-  }
+    const updatedFiles = [...scoreFiles];
+    const deletedFile = updatedFiles.splice(index, 1);
+    setScoreFiles(updatedFiles);
+    URL.revokeObjectURL(deletedFile.url);
+  };
 
   const handleOpenAuthModal = () => {
-    epsonAuthRef.current.showModal()
-  }
+    epsonAuthRef.current.showModal();
+  };
 
   const handleCloseAuthModal = () => {
-    epsonAuthRef.current.close()
-  }
+    epsonAuthRef.current.close();
+  };
 
   const handleOpenAuthUpdateModal = () => {
-    epsonAuthUpdateRef.current.showModal()
-  }
+    epsonAuthUpdateRef.current.showModal();
+  };
 
   const handleCloseAuthUpdateModal = () => {
-    epsonAuthUpdateRef.current.close()
-  }
+    epsonAuthUpdateRef.current.close();
+  };
 
   const handleEpsonConnectAuth = async (event) => {
-    event.preventDefault()
-    setIsAuthLoading(true)
+    event.preventDefault();
+    setIsAuthLoading(true);
 
-    const { email } = event.target
+    const { email } = event.target;
 
     const res = await fetch("/api/epson/auth", {
       method: "POST",
@@ -103,20 +106,20 @@ export default function Score() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email: email.value, password: "" }),
-    })
+    });
 
-    const data = await res.json()
+    const data = await res.json();
 
-    setIsAuthLoading(false)
+    setIsAuthLoading(false);
 
     if (res.ok) {
-      console.log("Authenticated successfully", data)
-      setAuthToken(data)
-      handleCloseAuthModal()
+      console.log("Authenticated successfully", data);
+      setAuthToken(data);
+      handleCloseAuthModal();
     } else {
-      console.error("Authentication failed", data)
+      console.error("Authentication failed", data);
     }
-  }
+  };
 
   const registerEpsonConnectScan = async () => {
     const res = await fetch(
@@ -127,45 +130,49 @@ export default function Score() {
           Authorization: `${authToken.token_type} ${authToken.access_token}`,
         },
       }
-    )
+    );
 
-    const data = await res.json()
+    const data = await res.json();
 
     if (res.ok) {
-      console.log("Registered this destination successfully", data)
+      console.log("Registered this destination successfully", data);
     }
 
     // TODO: Register에 실패하면 될 때까지 계속 등록??
-  }
+  };
 
   const handleConvertFiles = async () => {
-    for (let i = 0; i < scoreFiles.length; ++i) {
-      const formData = new FormData()
+    setProgress(0);
+    setStatus(1);
 
-      const file = scoreFiles[i]
-      const res = await fetch(file.url)
-      const blob = await res.blob()
-      formData.append(`file`, blob, file.name)
+    const tmpArray = [];
+
+    for (let i = 0; i < scoreFiles.length; ++i) {
+      const formData = new FormData();
+
+      const file = scoreFiles[i];
+      const res = await fetch(file.url);
+      const blob = await res.blob();
+      formData.append(`file`, blob, file.name);
 
       try {
         const res = await fetch("http://219.250.98.46:8000/upload-image/", {
           method: "POST",
           body: formData,
-        })
+        });
 
-        const result = await res.json()
-        console.log("Conversion result:", result)
+        const result = await res.json();
 
-        scoreFiles.forEach((file) => {
-          URL.revokeObjectURL(file.url)
-        })
-
-        setStatus(1)
+        tmpArray.push(result.notes);
       } catch (error) {
-        console.error("Error converting files:", error)
+        console.error("Error converting files:", error);
       }
+
+      setProgress(progress + 1);
     }
-  }
+    setScoreArray(tmpArray);
+    setStatus(2);
+  };
 
   return (
     <div className="h-full relative">
@@ -279,9 +286,13 @@ export default function Score() {
           </div>
         )}
 
-        {status === 1 && <ProcessView setStatus={setStatus} />}
+        {status === 1 && (
+          <ProcessView length={scoreFiles.length} progress={progress} />
+        )}
 
-        {status === 2 && <ResultView isConnected={authToken != null} />}
+        {status === 2 && (
+          <ResultView isConnected={authToken != null} scoreArray={scoreArray} />
+        )}
       </div>
 
       <dialog
@@ -289,7 +300,7 @@ export default function Score() {
         className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
         onClick={(event) => {
           if (event.target === epsonAuthRef.current) {
-            handleCloseAuthModal()
+            handleCloseAuthModal();
           }
         }}
       >
@@ -363,7 +374,7 @@ export default function Score() {
         className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
         onClick={(event) => {
           if (event.target === epsonAuthUpdateRef.current) {
-            handleCloseAuthUpdateModal()
+            handleCloseAuthUpdateModal();
           }
         }}
       >
@@ -416,8 +427,8 @@ export default function Score() {
               type="button"
               class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
               onClick={() => {
-                handleCloseAuthUpdateModal()
-                handleOpenAuthModal()
+                handleCloseAuthUpdateModal();
+                handleOpenAuthModal();
               }}
             >
               재인증
@@ -434,5 +445,5 @@ export default function Score() {
         </div>
       </dialog>
     </div>
-  )
+  );
 }
