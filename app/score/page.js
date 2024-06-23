@@ -287,7 +287,9 @@ export default function Score() {
         )}
 
         {status === 1 && (
-          <ProcessView length={scoreFiles.length} progress={progress} />
+          <Container className="flex flex-col text-center justify-center items-center gap-3 mb-24 h-full">
+            <ProcessView length={scoreFiles.length} progress={progress} />
+          </Container>
         )}
 
         {status === 2 && (
