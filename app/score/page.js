@@ -202,10 +202,13 @@ export default function Score() {
                 </button>
                 <label htmlFor="file-input" className="w-64">
                   <button
-                    className="w-64 bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300"
-                    onClick={handleOpenModal}
+                    id="file-select-btn"
+                    className="w-full bg-gray-300 active:bg-gray-500 active:after:bg-gray-300 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+                    onClick={() =>
+                      document.getElementById("file-input").click()
+                    }
                   >
-                    Epson Connect 연결
+                    파일 가져오기
                   </button>
                 </label>
                 <input
@@ -247,7 +250,7 @@ export default function Score() {
                   <label htmlFor="file-input">
                     <button
                       id="file-select-btn"
-                      className="w-full bg-gray-300 active:bg-gray-500 active:after:bg-gray-300 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+                      className="bg-gray-300 active:bg-gray-500 active:after:bg-gray-300 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
                       onClick={() =>
                         document.getElementById("file-input").click()
                       }
@@ -379,7 +382,7 @@ export default function Score() {
                 stroke="currentColor"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                stroke-width="2"
+                strokeWidth="2"
                 d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
               />
             </svg>
@@ -397,7 +400,7 @@ export default function Score() {
                 stroke="currentColor"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                stroke-width="2"
+                strokeWidth="2"
                 d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
               />
             </svg>
