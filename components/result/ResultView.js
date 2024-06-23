@@ -12,6 +12,7 @@ import {
 import ScoreCardSlider from "../../components/score/ScoreCardSlider";
 
 import ScoreMaker from "../../lib/score";
+import Container from "../Container";
 
 export default function ResultPage({ isConnected, scoreArray }) {
   const epsonAuthRef = useRef();
@@ -70,7 +71,25 @@ export default function ResultPage({ isConnected, scoreArray }) {
       {/* 악보 */}
       <ScoreCardSlider scores={result} onDelete={delLIst} />
 
-      <div className={styles.grid}>
+      <Container className="flex flex-row w-full text-center justify-center items-center gap-3 mt-3 mb-5">
+        <label htmlFor="file-input">
+          <button
+            id="file-select-btn"
+            className="bg-gray-300 active:bg-gray-500 active:after:bg-gray-300 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+          >
+            다운로드
+          </button>
+        </label>
+        <input id="file-input" type="file" multiple className="hidden" />
+        <button
+          className="grow bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300"
+          onClick={handlePrint}
+        >
+          프린트하기
+        </button>
+      </Container>
+
+      {/* <div className={styles.grid}>
         <button
           className={!isConnected ? styles.disabled : styles.blue_card}
           aria-disabled={!isConnected}
@@ -83,7 +102,7 @@ export default function ResultPage({ isConnected, scoreArray }) {
           <PictureAsPdfOutlined />
           PDF로 저장하기
         </a>
-      </div>
+      </div> */}
     </>
   );
 }
