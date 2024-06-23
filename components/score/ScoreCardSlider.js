@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import styles from "./ScoreCardSlider.module.css";
+import { Cancel as CancelIcon} from '@mui/icons-material';
 
-export default function ScoreCardSlider({ scores }) {
+export default function ScoreCardSlider({ scores, onDelete }) {
   const [active, setActive] = useState(0);
 
   const loadShow = () => {
@@ -51,13 +52,14 @@ export default function ScoreCardSlider({ scores }) {
   }, [scores]);
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="relative w-full h-full">
       {scores.map((item, index) => (
         <div
           key={index}
           id={`item-${index}`}
-          className={`absolute m-auto top-0 bottom-0 left-0 right-0 text-justify bg-white w-2/3 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ${styles.item}`}
+          className={`absolute m-auto top-0 bottom-0 left-0 right-0 text-justify bg-white w-2/3 border border-gray-200 rounded-lg shadow ${styles.item}`}
         >
+          {index === active && <CancelIcon sx={{fontSize: '28px'}} className="absolute text-slate-600 -right-3 -top-3" onClick={() => onDelete(active)}/> }
           <img
             src={item.url}
             className="w-full h-full object-cover rounded-lg"
@@ -67,7 +69,7 @@ export default function ScoreCardSlider({ scores }) {
       {active < scores.length - 1 && (
         <button
           id="next"
-          className="absolute top-1/2 right-4 text-3xl font-extrabold text-gray-600 z-40"
+          className="absolute top-1/2 right-2 text-3xl font-extrabold text-white z-40 bg-red-300 rounded-full px-4 py-3"
           onClick={() =>
             setActive(active + 1 < scores.length ? active + 1 : active)
           }
@@ -78,14 +80,16 @@ export default function ScoreCardSlider({ scores }) {
       {active > 0 && (
         <button
           id="prev"
-          className="absolute left-4 top-1/2 text-3xl font-extrabold text-gray-600 z-40"
+          className="absolute top-1/2 left-2 text-3xl font-extrabold text-white z-40 bg-red-300 rounded-full px-4 py-3"
           onClick={() => setActive(active - 1 >= 0 ? active - 1 : active)}
         >
           &larr;
         </button>
       )}
-      <div className="absolute bottom-0 mx-auto left-0 right-0 text-center font-bold text-gray-500">
-        {active + 1} / {scores.length}
+      <div className="absolute m-auto bottom-0 left-0 right-0 text-center z-50">
+        <span className="text-white text-sm font-medium bg-slate-400 shadow rounded-full px-4 py-1">
+          {active + 1} / {scores.length}
+        </span>
       </div>
     </div>
   );

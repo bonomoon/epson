@@ -10,10 +10,15 @@
     "@emotion/styled": "^11.11.5",
     "@mui/icons-material": "^5.15.20",
     "@mui/material": "^5.15.20",
+    "formidable": "^3.5.1",
+    "fs": "^0.0.1-security",
     "next": "latest",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-pdf": "^9.0.0"
+    "react-pdf": "^9.0.0",
+    "vexflow": "^4.2.4",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5"
   },
   "engines": {
     "node": ">=18"
