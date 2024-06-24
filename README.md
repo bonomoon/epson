@@ -58,8 +58,36 @@ export async function GET(req, { params }) {
 ```
 
 ### Scan
-> [/app/pages/api/epson/scan.js](https://github.com/bonomoon/haneum-ai-app/blob/main/app/pages/api/epson/scan.js)
+- [/app/api/epson/devices/\[id\]/destinations/route.js](https://github.com/bonomoon/haneum-ai-app/blob/main/app/api/epson/devices/[id]/destinations/route.js)
 
+```javascript
+export async function POST(req, { params }) {
+  const host = req.headers.get('origin');
+  const authorization = req.headers.get('authorization');
+
+  const res = await fetch(
+    `https://api.epsonconnect.com/api/1/scanning/scanners/${params.id}/destinations`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: authorization,
+        "Content-Type": "application/json; charset=UTF-8",
+      },
+      body: JSON.stringify({
+        alias_name: "Haneum AI",
+        type: "url",
+        destination: `${host}/api/epson/scan`,
+      }),
+    }
+  );
+  
+  const data = await res.json();
+  
+  return Response.json(data);
+}
+```
+
+- [/app/pages/api/epson/scan.js](https://github.com/bonomoon/haneum-ai-app/blob/main/app/pages/api/epson/scan.js)
 ```javascript
 /**
  *  API로 들어오는 요청에서 파일을 웹 소켓을 통해 클라이언트로 전달
