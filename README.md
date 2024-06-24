@@ -9,7 +9,7 @@ Vercel에 배포된 앱은 Vercel에서 Web Socket이 지원되지 않아, 기�
 
 ## Epson API Usage
 
-- 프로젝트 최상단 .env.local 정의 필트트
+- 프로젝트 최상단 .env.local 정의 필요
 ```shell
 EPSON_API_HOST=xxxx
 EPSON_CLIENT_ID=xxxx
@@ -35,6 +35,26 @@ const res = await fetch(
         }).toString(),
     }
 );
+```
+
+### Device Info
+> [/app/api/epson/devices/\[id\]/route.js](https://github.com/bonomoon/haneum-ai-app/blob/main/app/api/epson/devices/[id]/route.js)
+```
+export async function GET(req, { params }) {
+  const apiHost = process.env.EPSON_API_HOST;
+
+  const res = await fetch(
+    `${apiHost}/printing/printers/${params.id}`,
+    {
+      method: "GET",
+      headers: req.headers,
+    }
+  );
+
+  const data = await res.json();
+  
+  return Response.json(data);
+}
 ```
 
 ### Scan
@@ -70,7 +90,7 @@ return res.status(200).json();
 
 
 ### Print
-> [/app/api/epson/print/route.js](https://github.com/bonomoon/haneum-ai-app/blob/main/app/api/epson/auth/route.js)
+> [/app/api/epson/print/\[id\]/route.js](https://github.com/bonomoon/haneum-ai-app/blob/main/app/api/epson/print/[id]/route.js)
 
 ```javascript
 const authorization = req.headers.get("authorization")
