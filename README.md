@@ -39,7 +39,7 @@ const res = await fetch(
 
 ### Device Info
 > [/app/api/epson/devices/\[id\]/route.js](https://github.com/bonomoon/haneum-ai-app/blob/main/app/api/epson/devices/[id]/route.js)
-```
+```javascript
 export async function GET(req, { params }) {
   const apiHost = process.env.EPSON_API_HOST;
 
