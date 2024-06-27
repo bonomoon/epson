@@ -19,7 +19,6 @@ export default function Score() {
   const [scoreFiles, setScoreFiles] = useState([]);
   const [authToken, setAuthToken] = useState(null);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
-
   const [scoreArray, setScoreArray] = useState([[]]);
   const [progress, setProgress] = useState(null);
 
@@ -27,11 +26,11 @@ export default function Score() {
   const [status, setStatus] = useState(0);
 
   useEffect(() => {
-    function onEpsonConnectScan(files) {
+    const onEpsonConnectScan = (files) => {
       const newFiles = files.map((file) => {
         const byteData = atob(file.data);
-        const byteArray = new Uint8Array(byteData.length).map((_, i) =>
-          byteData.charCodeAt(i)
+        const byteArray = Uint8Array.from(byteData, (char) =>
+          char.charCodeAt(0)
         );
 
         return {
@@ -45,53 +44,40 @@ export default function Score() {
     }
 
     socket?.on("epson-scan", onEpsonConnectScan);
-
-    return () => {
-      socket?.off("epson-scan", onEpsonConnectScan);
-    };
+    return () => socket?.off("epson-scan", onEpsonConnectScan);
   }, [socket]);
 
   useEffect(() => {
-    if (authToken !== null) {
+    if (authToken) {
       registerEpsonConnectScan();
     }
   }, [authToken]);
 
-  const handleFileInputChange = async (event) => {
-    const file = event.target.files?.[0];
-
-    if (!file) return;
-
-    const scoreFile = {
+  const handleFileInputChange = (event) => {
+    const files = Array.from(event.target.files).map((file) => ({
       name: file.name,
       type: file.type,
       url: URL.createObjectURL(file),
-    };
+    }));
 
-    setScoreFiles([...scoreFiles, scoreFile]);
+    setScoreFiles((prevFiles) => [...prevFiles, ...files]);
   };
 
   const handleFileDelete = (index) => {
-    const updatedFiles = [...scoreFiles];
-    const deletedFile = updatedFiles.splice(index, 1);
-    setScoreFiles(updatedFiles);
-    URL.revokeObjectURL(deletedFile.url);
+    setScoreFiles((prevFiles) => {
+      const updatedFiles = [...prevFiles];
+
+      URL.revokeObjectURL(updatedFiles[index].url);
+      updatedFiles.splice(index, 1);
+
+      return updatedFiles;
+    });
   };
 
-  const handleOpenAuthModal = () => {
-    epsonAuthRef.current.showModal();
-  };
-
-  const handleCloseAuthModal = () => {
-    epsonAuthRef.current.close();
-  };
-
-  const handleOpenAuthUpdateModal = () => {
-    epsonAuthUpdateRef.current.showModal();
-  };
-
-  const handleCloseAuthUpdateModal = () => {
-    epsonAuthUpdateRef.current.close();
+  const handleModalToggle = (ref, action) => {
+    if (ref.current) {
+      ref.current[action]();
+    }
   };
 
   const handleEpsonConnectAuth = async (event) => {
@@ -99,7 +85,6 @@ export default function Score() {
     setIsAuthLoading(true);
 
     const { email } = event.target;
-
     const res = await fetch("/api/epson/auth", {
       method: "POST",
       headers: {
@@ -113,7 +98,6 @@ export default function Score() {
     setIsAuthLoading(false);
 
     if (res.ok) {
-      console.log("Authenticated successfully", data);
       setAuthToken(data);
       handleCloseAuthModal();
     } else {
@@ -134,11 +118,9 @@ export default function Score() {
 
     const data = await res.json();
 
-    if (res.ok) {
-      console.log("Registered this destination successfully", data);
+    if (!res.ok) {
+      console.error("Failed to register destination", data);
     }
-
-    // TODO: Register에 실패하면 될 때까지 계속 등록??
   };
 
   const handleConvertFiles = async () => {
@@ -149,27 +131,25 @@ export default function Score() {
 
     for (let i = 0; i < scoreFiles.length; ++i) {
       const formData = new FormData();
-
       const file = scoreFiles[i];
       const res = await fetch(file.url);
       const blob = await res.blob();
+
       formData.append(`file`, blob, file.name);
 
       try {
         const res = await fetch("http://219.250.98.46:8000/upload-image/", {
           method: "POST",
           body: formData,
-        });
-
-        const result = await res.json();
+        }).then((res) => res.json());
 
         tmpArray.push(result.notes);
       } catch (error) {
         console.error("Error converting files:", error);
       }
-
-      setProgress(progress + 1);
+      setProgress((prevProgress) => prevProgress + 1);
     }
+
     setScoreArray(tmpArray);
     setStatus(2);
   };
@@ -179,8 +159,10 @@ export default function Score() {
       <ScoreHeader
         className="absolute w-full m-auto left-0 right-0 z-30"
         auth={authToken}
-        onAuthClick={handleOpenAuthModal}
-        onAuthUpdateClick={handleOpenAuthUpdateModal}
+        onAuthClick={() => handleModalToggle(epsonAuthRef, "showModal")}
+        onAuthUpdateClick={() =>
+          handleModalToggle(epsonAuthUpdateRef, "showModal")
+        }
       />
       <div className="h-full flex flex-col pt-16">
         <Container>
@@ -191,7 +173,7 @@ export default function Score() {
         </Container>
         {status === 0 && (
           <div className="h-full flex flex-col items-center justify-center">
-            {scoreFiles.length === 0 && authToken === null ? (
+            {scoreFiles.length === 0 && !authToken ? (
               <Container className="flex flex-col text-center justify-center items-center gap-3 mb-24">
                 <div className="mb-10">
                   <AddCircleOutlineOutlined
@@ -205,7 +187,7 @@ export default function Score() {
                 </div>
                 <button
                   className="w-64 bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 text-white font-bold py-3 px-5 rounded-lg transition-colors duration-300"
-                  onClick={handleOpenAuthModal}
+                  onClick={() => handleModalToggle(epsonAuthRef, "showModal")}
                 >
                   Epson Connect 연결
                 </button>
@@ -302,7 +284,7 @@ export default function Score() {
         className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
         onClick={(event) => {
           if (event.target === epsonAuthRef.current) {
-            handleCloseAuthModal();
+            handleModalToggle(epsonAuthRef, "close");
           }
         }}
       >
@@ -311,7 +293,7 @@ export default function Score() {
           <button
             type="button"
             className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-            onClick={handleCloseAuthModal}
+            onClick={() => handleModalToggle(epsonAuthRef, "close")}
           >
             <svg
               className="w-3 h-3"
@@ -376,7 +358,7 @@ export default function Score() {
         className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
         onClick={(event) => {
           if (event.target === epsonAuthUpdateRef.current) {
-            handleCloseAuthUpdateModal();
+            handleModalToggle(epsonAuthUpdateRef, "close");
           }
         }}
       >
@@ -384,7 +366,7 @@ export default function Score() {
           <button
             type="button"
             class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-            onClick={handleCloseAuthUpdateModal}
+            onClick={() => handleModalToggle(epsonAuthUpdateRef, "close")}
           >
             <svg
               class="w-3 h-3"
@@ -429,8 +411,8 @@ export default function Score() {
               type="button"
               class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
               onClick={() => {
-                handleCloseAuthUpdateModal();
-                handleOpenAuthModal();
+                handleModalToggle(epsonAuthUpdateRef, "close");
+                handleModalToggle(epsonAuthRef, "showModal");
               }}
             >
               재인증
@@ -439,7 +421,7 @@ export default function Score() {
               data-modal-hide="popup-modal"
               type="button"
               class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
-              onClick={handleCloseAuthUpdateModal}
+              onClick={() => handleModalToggle(epsonAuthUpdateRef, "close")}
             >
               취소
             </button>
