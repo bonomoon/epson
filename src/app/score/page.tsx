@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Container from "@components/Container";
-import ScoreCardSlider from "@components/score/ScoreCardSlider";
-import ScoreHeader from "@components/score/ScoreHeader";
 import ProcessView from "@components/process/ProcessView";
 import ResultView from "@components/result/ResultView";
+import ScoreHeader from "@components/score/ScoreHeader";
+import { useEffect, useRef, useState } from "react";
 
-import { AddCircleOutlineOutlined, Add as AddIcon } from "@mui/icons-material";
-import { useSocket } from "@components/providers/socket-provider";
 import EpsonAuthModal from "@components/modal/EpsonAuthModal";
 import EpsonAuthUpdateModal from "@components/modal/EpsonAuthUpdateModal";
+import { useSocket } from "@components/providers/socket-provider";
+import ScoreCardSlider from "@components/score/ScoreCardSlider";
+import { AddCircleOutlineOutlined, Add as AddIcon } from "@mui/icons-material";
+import { AuthToken, ScoreFile, Status } from "@types";
 
 export default function Score() {
   const { socket } = useSocket();
@@ -89,13 +90,12 @@ export default function Score() {
   const handleEpsonConnectAuth = async (email: string) => {
     setIsAuthLoading(true);
 
-    const { email } = event.target;
     const res = await fetch("/api/epson/auth", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: email.value, password: "" }),
+      body: JSON.stringify({ email: email, password: "" }),
     });
 
     const data = await res.json();
@@ -202,7 +202,7 @@ export default function Score() {
                     id="file-select-btn"
                     className="w-full bg-gray-300 active:bg-gray-500 active:after:bg-gray-300 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
                     onClick={() =>
-                      document.getElementById("file-input").click()
+                      document.getElementById("file-input")?.click()
                     }
                   >
                     파일 가져오기
@@ -224,7 +224,7 @@ export default function Score() {
                       <div
                         className={`flex items-center justify-center active:bg-gray-200 active:after:bg-inherit w-2/3 h-2/3 border-2 border-dashed border-gray-400 rounded-lg shadow`}
                         onClick={() =>
-                          document.getElementById("file-input").click()
+                          document.getElementById("file-input")?.click()
                         }
                       >
                         <AddIcon
@@ -249,7 +249,7 @@ export default function Score() {
                       id="file-select-btn"
                       className="bg-gray-300 active:bg-gray-500 active:after:bg-gray-300 text-black font-bold py-3 px-5 rounded-lg transition-colors duration-300"
                       onClick={() =>
-                        document.getElementById("file-input").click()
+                        document.getElementById("file-input")?.click()
                       }
                     >
                       파일 가져오기
@@ -288,12 +288,14 @@ export default function Score() {
       <EpsonAuthModal
         ref={epsonAuthRef}
         isAuthLoading={isAuthLoading}
-        onEpsonConnect={handleEpsonConnectAuth}
+        onSubmit={handleEpsonConnectAuth}
+        onCancel={() => epsonAuthRef.current?.close()}
       />
 
       <EpsonAuthUpdateModal
         ref={epsonAuthUpdateRef}
-        onCancel={}
+        onSubmit={() => epsonAuthRef.current?.showModal()}
+        onCancel={() => epsonAuthUpdateRef.current?.close()}
       />
     </div>
   );

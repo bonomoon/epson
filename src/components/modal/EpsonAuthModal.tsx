@@ -3,36 +3,33 @@ import { forwardRef } from "react";
 
 interface EpsonAuthModalProps {
   isAuthLoading: boolean;
-  onEpsonConnect: (email: string) => void;
+  onSubmit: (email: string) => void;
+  onCancel: () => void;
 }
 
 const EpsonAuthModal = forwardRef<HTMLDialogElement, EpsonAuthModalProps>(
   (props, ref) => {
-    const { isAuthLoading, onEpsonConnect } = props;
+    const { isAuthLoading, onSubmit, onCancel } = props;
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const form = event.target as HTMLFormElement;
       const emailInput = form.elements.namedItem("email") as HTMLInputElement;
-      onEpsonConnect(emailInput.value);
+      onSubmit(emailInput.value);
     };
 
     return (
       <dialog
         ref={ref}
         className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
-        onClick={(event) => {
-          if (event.target === ref.current) {
-            ref.current.close();
-          }
-        }}
+        onClick={onCancel}
       >
         <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
           <h3 className="text-xl font-semibold text-blue-800">EPSON CONNECT</h3>
           <button
             type="button"
             className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-            onClick={ref.current.close}
+            onClick={onCancel}
           >
             <svg
               className="w-3 h-3"

@@ -3,16 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
-import styles from "../../styles/Result.module.css";
+import styles from "@styles/Result.module.css";
 import {
   LocalPrintshopOutlined,
   PictureAsPdfOutlined,
 } from "@mui/icons-material";
 
-import ScoreCardSlider from "../score/ScoreCardSlider";
+import ScoreCardSlider from "@components/score/ScoreCardSlider";
 
-import ScoreMaker from "../../lib/score/index.ts";
-import Container from "../Container";
+import ScoreMaker from "@lib/score";
+import Container from "@components/Container";
 
 export default function ResultPage({ isConnected, scoreArray }) {
   const epsonAuthRef = useRef();

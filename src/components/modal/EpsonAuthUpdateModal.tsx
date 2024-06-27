@@ -1,30 +1,35 @@
 import React, { forwardRef } from "react";
 
 interface EpsonAuthUpdateModalProps {
-  handleModalToggle: (ref: React.RefObject<HTMLDialogElement>, action: "showModal" | "close") => void;
-  handleOpenAuthModal: () => void;
+  onSubmit: () => void;
+  onCancel: () => void;
 }
 
-const EpsonAuthUpdateModal = forwardRef<HTMLDialogElement, EpsonAuthUpdateModalProps>((props, ref) => {
-  const { handleModalToggle, handleOpenAuthModal } = props;
+const EpsonAuthUpdateModal = forwardRef<
+  HTMLDialogElement,
+  EpsonAuthUpdateModalProps
+>((props, ref) => {
+  const { onSubmit, onCancel } = props;
 
   return (
     <dialog
       ref={ref}
       className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
-      onClick={(event) => {
-        if (event.target === ref.current) {
-          handleModalToggle(ref, "close");
-        }
-      }}
+      onClick={onCancel}
     >
       <div className="relative p-4 w-full max-w-md max-h-full">
         <button
           type="button"
           className="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-          onClick={() => ref.current && handleModalToggle(ref, "close")}
+          onClick={onCancel}
         >
-          <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+          <svg
+            className="w-3 h-3"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 14"
+          >
             <path
               stroke="currentColor"
               strokeLinecap="round"
@@ -36,7 +41,13 @@ const EpsonAuthUpdateModal = forwardRef<HTMLDialogElement, EpsonAuthUpdateModalP
           <span className="sr-only">Close modal</span>
         </button>
         <div className="p-4 md:p-5 text-center">
-          <svg className="mx-auto mb-4 text-gray-400 w-12 h-12" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+          <svg
+            className="mx-auto mb-4 text-gray-400 w-12 h-12"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 20"
+          >
             <path
               stroke="currentColor"
               strokeLinecap="round"
@@ -53,17 +64,14 @@ const EpsonAuthUpdateModal = forwardRef<HTMLDialogElement, EpsonAuthUpdateModalP
           <button
             type="button"
             className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5"
-            onClick={() => {
-              ref.current && handleModalToggle(ref, "close");
-              handleOpenAuthModal();
-            }}
+            onClick={onSubmit}
           >
             재인증
           </button>
           <button
             type="button"
             className="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
-            onClick={() => ref.current && handleModalToggle(ref, "close")}
+            onClick={onCancel}
           >
             취소
           </button>
