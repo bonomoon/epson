@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Container from "../../components/Container";
-import ScoreCardSlider from "../../components/score/ScoreCardSlider";
-import ScoreHeader from "../../components/score/ScoreHeader";
-import ProcessView from "../../components/process/ProcessView";
-import ResultView from "../../components/result/ResultView";
+import Container from "@components/Container";
+import ScoreCardSlider from "@components/score/ScoreCardSlider";
+import ScoreHeader from "@components/score/ScoreHeader";
+import ProcessView from "@components/process/ProcessView";
+import ResultView from "@components/result/ResultView";
 
 import { AddCircleOutlineOutlined, Add as AddIcon } from "@mui/icons-material";
-import { useSocket } from "../../components/providers/socket-provider";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import { useSocket } from "@components/providers/socket-provider";
+import LoadingSpinner from "@components/LoadingSpinner";
 
 export default function Score() {
   const { socket } = useSocket();
