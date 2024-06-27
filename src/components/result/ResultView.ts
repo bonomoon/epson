@@ -9,9 +9,9 @@ import {
   PictureAsPdfOutlined,
 } from "@mui/icons-material";
 
-import ScoreCardSlider from "../../components/score/ScoreCardSlider";
+import ScoreCardSlider from "../score/ScoreCardSlider";
 
-import ScoreMaker from "../../lib/score";
+import ScoreMaker from "../../lib/score/index.ts";
 import Container from "../Container";
 
 export default function ResultPage({ isConnected, scoreArray }) {
