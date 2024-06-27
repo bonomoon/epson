@@ -9,24 +9,25 @@ import ResultView from "@components/result/ResultView";
 
 import { AddCircleOutlineOutlined, Add as AddIcon } from "@mui/icons-material";
 import { useSocket } from "@components/providers/socket-provider";
-import LoadingSpinner from "@components/LoadingSpinner";
+import EpsonAuthModal from "@components/modal/EpsonAuthModal";
+import EpsonAuthUpdateModal from "@components/modal/EpsonAuthUpdateModal";
 
 export default function Score() {
   const { socket } = useSocket();
-  const epsonAuthRef = useRef();
-  const epsonAuthUpdateRef = useRef();
+  const epsonAuthRef = useRef<HTMLDialogElement>(null);
+  const epsonAuthUpdateRef = useRef<HTMLDialogElement>(null);
 
-  const [scoreFiles, setScoreFiles] = useState([]);
-  const [authToken, setAuthToken] = useState(null);
-  const [isAuthLoading, setIsAuthLoading] = useState(false);
-  const [scoreArray, setScoreArray] = useState([[]]);
-  const [progress, setProgress] = useState(null);
+  const [scoreFiles, setScoreFiles] = useState<ScoreFile[]>([]);
+  const [authToken, setAuthToken] = useState<AuthToken | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(false);
+  const [scoreArray, setScoreArray] = useState<any[][]>([[]]);
+  const [progress, setProgress] = useState<number | null>(null);
 
   // 0: score, 1: process, 2: result
-  const [status, setStatus] = useState(0);
+  const [status, setStatus] = useState<Status>(0);
 
   useEffect(() => {
-    const onEpsonConnectScan = (files) => {
+    const onEpsonConnectScan = (files: any[]) => {
       const newFiles = files.map((file) => {
         const byteData = atob(file.data);
         const byteArray = Uint8Array.from(byteData, (char) =>
@@ -41,10 +42,12 @@ export default function Score() {
       });
 
       setScoreFiles((prevFiles) => [...prevFiles, ...newFiles]);
-    }
+    };
 
     socket?.on("epson-scan", onEpsonConnectScan);
-    return () => socket?.off("epson-scan", onEpsonConnectScan);
+    return () => {
+      socket?.off("epson-scan", onEpsonConnectScan);
+    };
   }, [socket]);
 
   useEffect(() => {
@@ -53,8 +56,10 @@ export default function Score() {
     }
   }, [authToken]);
 
-  const handleFileInputChange = (event) => {
-    const files = Array.from(event.target.files).map((file) => ({
+  const handleFileInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = Array.from(event.target.files || []).map((file) => ({
       name: file.name,
       type: file.type,
       url: URL.createObjectURL(file),
@@ -63,25 +68,25 @@ export default function Score() {
     setScoreFiles((prevFiles) => [...prevFiles, ...files]);
   };
 
-  const handleFileDelete = (index) => {
+  const handleFileDelete = (index: number) => {
     setScoreFiles((prevFiles) => {
       const updatedFiles = [...prevFiles];
-
       URL.revokeObjectURL(updatedFiles[index].url);
       updatedFiles.splice(index, 1);
-
       return updatedFiles;
     });
   };
 
-  const handleModalToggle = (ref, action) => {
+  const handleModalToggle = (
+    ref: React.RefObject<HTMLDialogElement>,
+    action: "showModal" | "close"
+  ) => {
     if (ref.current) {
       ref.current[action]();
     }
   };
 
-  const handleEpsonConnectAuth = async (event) => {
-    event.preventDefault();
+  const handleEpsonConnectAuth = async (email: string) => {
     setIsAuthLoading(true);
 
     const { email } = event.target;
@@ -94,18 +99,19 @@ export default function Score() {
     });
 
     const data = await res.json();
-
     setIsAuthLoading(false);
 
     if (res.ok) {
       setAuthToken(data);
-      handleCloseAuthModal();
+      handleModalToggle(epsonAuthRef, "close");
     } else {
       console.error("Authentication failed", data);
     }
   };
 
   const registerEpsonConnectScan = async () => {
+    if (!authToken) return;
+
     const res = await fetch(
       `/api/epson/devices/${authToken.subject_id}/destinations`,
       {
@@ -127,7 +133,7 @@ export default function Score() {
     setProgress(0);
     setStatus(1);
 
-    const tmpArray = [];
+    const tmpArray: any[] = [];
 
     for (let i = 0; i < scoreFiles.length; ++i) {
       const formData = new FormData();
@@ -135,10 +141,10 @@ export default function Score() {
       const res = await fetch(file.url);
       const blob = await res.blob();
 
-      formData.append(`file`, blob, file.name);
+      formData.append("file", blob, file.name);
 
       try {
-        const res = await fetch("http://219.250.98.46:8000/upload-image/", {
+        const result = await fetch("http://219.250.98.46:8000/upload-image/", {
           method: "POST",
           body: formData,
         }).then((res) => res.json());
@@ -147,7 +153,7 @@ export default function Score() {
       } catch (error) {
         console.error("Error converting files:", error);
       }
-      setProgress((prevProgress) => prevProgress + 1);
+      setProgress((prevProgress) => (prevProgress || 0) + 1);
     }
 
     setScoreArray(tmpArray);
@@ -279,155 +285,16 @@ export default function Score() {
         )}
       </div>
 
-      <dialog
+      <EpsonAuthModal
         ref={epsonAuthRef}
-        className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
-        onClick={(event) => {
-          if (event.target === epsonAuthRef.current) {
-            handleModalToggle(epsonAuthRef, "close");
-          }
-        }}
-      >
-        <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
-          <h3 className="text-xl font-semibold text-blue-800">EPSON CONNECT</h3>
-          <button
-            type="button"
-            className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-            onClick={() => handleModalToggle(epsonAuthRef, "close")}
-          >
-            <svg
-              className="w-3 h-3"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 14 14"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-              />
-            </svg>
-            <span className="sr-only">Close modal</span>
-          </button>
-        </div>
-        <div className="py-5 px-8 flex flex-wrap">
-          <form className="w-80" onSubmit={handleEpsonConnectAuth}>
-            <div>
-              <label
-                htmlFor="email"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Epson 제품에 연결된 이메일 ID
-              </label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="name@print.epsonconnect.com"
-                required
-              />
-            </div>
+        isAuthLoading={isAuthLoading}
+        onEpsonConnect={handleEpsonConnectAuth}
+      />
 
-            <button
-              type="submit"
-              className="w-full mt-7 mb-12 items-center justify-center flex text-white bg-blue-600 active:bg-blue-700 active:after:bg-blue-600 focus:ring-4 focus:outline-none font-medium rounded-lg text-md px-5 py-2.5 text-center"
-            >
-              {isAuthLoading ? <LoadingSpinner className="w-6 h-6" /> : "인증"}
-            </button>
-            <div className="text-sm font-medium text-center text-gray-500">
-              미등록 제품인가요?{" "}
-              <a
-                href="https://www.epsonconnect.com/guide/ko/html/p01.htm"
-                target="_blank"
-                className="text-blue-500 hover:underline"
-              >
-                Epson Connect 계정 연동
-              </a>
-            </div>
-          </form>
-        </div>
-      </dialog>
-
-      <dialog
+      <EpsonAuthUpdateModal
         ref={epsonAuthUpdateRef}
-        tabindex="-1"
-        className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
-        onClick={(event) => {
-          if (event.target === epsonAuthUpdateRef.current) {
-            handleModalToggle(epsonAuthUpdateRef, "close");
-          }
-        }}
-      >
-        <div class="relative p-4 w-full max-w-md max-h-full">
-          <button
-            type="button"
-            class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-            onClick={() => handleModalToggle(epsonAuthUpdateRef, "close")}
-          >
-            <svg
-              class="w-3 h-3"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 14 14"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                strokeWidth="2"
-                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-              />
-            </svg>
-            <span class="sr-only">Close modal</span>
-          </button>
-          <div class="p-4 md:p-5 text-center">
-            <svg
-              class="mx-auto mb-4 text-gray-400 w-12 h-12"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 20 20"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                strokeWidth="2"
-                d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-              />
-            </svg>
-            <h3 class="mb-5 text-lg font-normal text-base text-gray-500 dark:text-gray-400">
-              기존 Epson Connect 제품 연동을
-              <br />
-              다시 하시겠습니까?
-            </h3>
-            <button
-              data-modal-hide="popup-modal"
-              type="button"
-              class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-              onClick={() => {
-                handleModalToggle(epsonAuthUpdateRef, "close");
-                handleModalToggle(epsonAuthRef, "showModal");
-              }}
-            >
-              재인증
-            </button>
-            <button
-              data-modal-hide="popup-modal"
-              type="button"
-              class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
-              onClick={() => handleModalToggle(epsonAuthUpdateRef, "close")}
-            >
-              취소
-            </button>
-          </div>
-        </div>
-      </dialog>
+        onCancel={}
+      />
     </div>
   );
 }
