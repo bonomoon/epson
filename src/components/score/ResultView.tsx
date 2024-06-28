@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import ScoreCardSlider from "@components/score/ScoreCardSlider";
-import ScoreMaker from "@lib/score";
+import ScoreMaker from "@lib/score/index";
 import { EpsonAuthToken, ScoreFile } from "@types";
 import Container from "@components/Container";
 
@@ -20,7 +20,7 @@ export default function ResultPage({ scoreArray, authToken }: ResultPageProps) {
     const tmpArray: string[] = [];
 
     scoreArray.forEach((el) => {
-      const scoreImg = ScoreMaker.run(scoreRef.current, el, "6/8");
+      const scoreImg = ScoreMaker.run(scoreRef, el, "6/8");
       tmpArray.push(scoreImg);
     });
 
@@ -31,7 +31,7 @@ export default function ResultPage({ scoreArray, authToken }: ResultPageProps) {
         };
       })
     );
-  }, [scoreArray]);
+  }, []);
 
   const delList = (index: number) => {
     setResult(result.filter((_, idx) => idx !== index));
