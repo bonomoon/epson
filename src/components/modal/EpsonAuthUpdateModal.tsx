@@ -15,7 +15,11 @@ const EpsonAuthUpdateModal = forwardRef<
     <dialog
       ref={ref}
       className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
-      onClick={onCancel}
+      onClick={(event) => {
+        if (typeof ref !== "function" && event.target === ref?.current) {
+          onCancel();
+        }
+      }}
     >
       <div className="relative p-4 w-full max-w-md max-h-full">
         <button
@@ -64,7 +68,10 @@ const EpsonAuthUpdateModal = forwardRef<
           <button
             type="button"
             className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5"
-            onClick={onSubmit}
+            onClick={() => {
+              onCancel();
+              onSubmit();
+            }}
           >
             재인증
           </button>

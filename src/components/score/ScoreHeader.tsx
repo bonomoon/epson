@@ -88,7 +88,7 @@ export default function ScoreHeader({
               <div className="text-center">
                 {epsonDeviceInfo.printer_name
                   ? `${epsonDeviceInfo.printer_name}-${epsonDeviceInfo.serial_no}`
-                  : "등록된 기기가 존재하지 않습니다."}
+                  : "등록된 제품이 없습니다."}
               </div>
             </button>
           )}

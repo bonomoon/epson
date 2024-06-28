@@ -1,5 +1,6 @@
 import LoadingSpinner from "@components/LoadingSpinner";
 import { forwardRef } from "react";
+import EpsonAuthUpdateModal from "./EpsonAuthUpdateModal";
 
 interface EpsonAuthModalProps {
   isAuthLoading: boolean;
@@ -22,7 +23,11 @@ const EpsonAuthModal = forwardRef<HTMLDialogElement, EpsonAuthModalProps>(
       <dialog
         ref={ref}
         className="relative bg-white backdrop:bg-black/20 backdrop:backdrop-blur-sm rounded-lg shadow"
-        onClick={onCancel}
+        onClick={(event) => {
+          if (typeof ref !== 'function' && event.target === ref?.current) {
+            onCancel();
+          }
+        }}
       >
         <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
           <h3 className="text-xl font-semibold text-blue-800">EPSON CONNECT</h3>
