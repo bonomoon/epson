@@ -1,18 +1,17 @@
-import Vex from "vexflow";
+import { Vex } from "vexflow";
 
 const { Factory } = Vex.Flow;
 
 const WIDTH = 1250;
 const HEIGHT = 1750;
 
-const calBarNote = (dummyData: string[], time: string): string[] => {
-  const barList: string[][] = [];
+const calBarNote = (dummyData, time) => {
+  const barList = [];
   const timeData = time.split("/");
-  const timeValue = Number(timeData[0]) / Number(timeData[1]);
+  time = Number(timeData[0]) / Number(timeData[1]);
 
-  let bar: string[] = [];
+  let bar = [];
   let calTime = 0;
-
   for (const index in dummyData) {
     const el = dummyData[index];
 
@@ -20,13 +19,13 @@ const calBarNote = (dummyData: string[], time: string): string[] => {
     calTime += 1 / Number(beat);
     bar.push(el);
 
-    if (calTime === timeValue) {
+    if (calTime == Number(time)) {
       barList.push(bar);
       bar = [];
       calTime = 0;
-    } else if (calTime > timeValue) {
+    } else if (calTime > Number(time)) {
       bar.pop();
-      bar.push(`b4/${1 / (timeValue - (calTime - 1 / Number(beat)))}/r`);
+      bar.push(`b4/${1 / (time - (calTime - 1 / Number(beat)))}/r`);
       barList.push(bar);
       bar = [];
       calTime = 0;
@@ -36,15 +35,14 @@ const calBarNote = (dummyData: string[], time: string): string[] => {
     }
   }
 
-  if (calTime !== 0) {
+  if (calTime != 0) {
     const lastEle = bar[bar.length - 1].split("/");
     const beat = lastEle[1];
-    
     if (lastEle[2]) {
       bar.pop();
-      bar.push(`b4/${1 / (timeValue - (calTime - 1 / Number(beat)))}/r`);
+      bar.push(`b4/${1 / (time - (calTime - 1 / Number(beat)))}/r`);
     } else {
-      bar.push(`b4/${1 / (timeValue - calTime)}/r`);
+      bar.push(`b4/${1 / (time - calTime)}/r`);
     }
 
     barList.push(bar);
@@ -55,9 +53,9 @@ const calBarNote = (dummyData: string[], time: string): string[] => {
   });
 };
 
-const setScore = (f: Factory, time: string, list: string[]): void => {
+const setScore = (f, time, List) => {
   const score = f.EasyScore();
-  const spliteLineList = ArraySplit(list);
+  const spliteLineList = ArraySplit(List);
 
   const options = {
     minHeight: 20,
@@ -66,8 +64,8 @@ const setScore = (f: Factory, time: string, list: string[]): void => {
   };
 
   spliteLineList.forEach((line, lineIndex) => {
-    const voiceArray: Vex.Voice[] = [];
-    let firstStave: Vex.Stave | undefined;
+    const voiceArray = [];
+    let firstStave;
 
     line.forEach((bar, barIndex) => {
       const stave = f.Stave({
@@ -76,7 +74,7 @@ const setScore = (f: Factory, time: string, list: string[]): void => {
         width: options.width,
       });
 
-      if (barIndex === 0) {
+      if (barIndex == 0) {
         firstStave = stave;
         stave.addTrebleGlyph().addTimeSignature(time);
       }
@@ -86,26 +84,23 @@ const setScore = (f: Factory, time: string, list: string[]): void => {
       voiceArray.push(voice);
     });
 
-    if (firstStave) {
-      f.Formatter()
-        .joinVoices([voiceArray[0]])
-        .formatToStave([voiceArray[0]], firstStave);
-    }
+    f.Formatter()
+      .joinVoices([voiceArray[0]])
+      .formatToStave([voiceArray[0]], firstStave);
 
     if (voiceArray.length > 1) {
       f.Formatter()
-        .joinVoices(voiceArray.slice(1))
-        .formatToStave(voiceArray.slice(1), f.getStave());
+        .joinVoices(voiceArray.filter((e, idx) => idx != 0))
+        .formatToStave(
+          voiceArray.filter((e, idx) => idx != 0),
+          f.getStave()
+        );
     }
   });
   f.draw();
 };
 
-const run = (
-  targetEle: React.RefObject<HTMLCanvasElement>,
-  data: string[],
-  time: string
-): string => {
+const run = (targetEle, data, time) => {
   const options = {
     width: WIDTH,
     height: HEIGHT,
@@ -115,7 +110,7 @@ const run = (
 
   const f = new Factory({
     renderer: {
-      elementId: targetEle.current?.id || "",
+      elementId: targetEle.current.id,
       width: options.width,
       height: options.height,
     },
@@ -123,11 +118,11 @@ const run = (
 
   setScore(f, time, calBarNote(data, time));
 
-  return targetEle.current?.toDataURL("image/jpg", 1.0) || "";
+  return targetEle.current.toDataURL("image/jpg", 1.0);
 };
 
-const ArraySplit = (data: string[] = [], size: number = 4): string[][] => {
-  const arr: string[][] = [];
+const ArraySplit = (data = [], size = 4) => {
+  const arr = [];
 
   for (let i = 0; i < data.length; i += size) {
     arr.push(data.slice(i, i + size));
