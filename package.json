@@ -16,9 +16,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-pdf": "^9.0.0",
-    "vexflow": "^4.2.4",
     "socket.io": "^4.7.5",
-    "socket.io-client": "^4.7.5"
+    "socket.io-client": "^4.7.5",
+    "vexflow": "^4.2.4"
   },
   "engines": {
     "node": ">=18"
@@ -27,6 +27,7 @@
   "devDependencies": {
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.4"
+    "tailwindcss": "^3.4.4",
+    "typescript": "5.5.2"
   }
 }

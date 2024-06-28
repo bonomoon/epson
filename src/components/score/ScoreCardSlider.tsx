@@ -1,0 +1,115 @@
+"use-client";
+
+import { useState, useEffect } from "react";
+import styles from "./ScoreCardSlider.module.css";
+import { Cancel as CancelIcon } from "@mui/icons-material";
+import { ScoreFile } from "@types";
+
+interface ScoreCardSliderProps {
+  scores: ScoreFile[];
+  onDelete: (index: number) => void;
+}
+
+export default function ScoreCardSlider({
+  scores,
+  onDelete,
+}: ScoreCardSliderProps) {
+  const [active, setActive] = useState<number>(0);
+
+  const loadShow = () => {
+    scores.forEach((item, index) => {
+      const itemElement = document.getElementById(`item-${index}`);
+      let stt = 0;
+
+      if (!itemElement) {
+        return;
+      }
+
+      if (index === active) {
+        itemElement.style.transform = "none";
+        itemElement.style.zIndex = "1";
+        itemElement.style.filter = "none";
+        itemElement.style.opacity = "1";
+      } else if (index > active) {
+        stt++;
+        itemElement.style.transform = `
+            translateX(${120 * stt}px)
+            scale(${1 - 0.2 * stt})
+            perspective(16px)
+            rotateY(-1deg)
+        `;
+        itemElement.style.zIndex = `${-stt}`;
+        itemElement.style.filter = "blur(5px)";
+        itemElement.style.opacity = stt > 2 ? "0" : "0.6";
+      } else {
+        stt++;
+        itemElement.style.transform = `
+            translateX(${-120 * stt}px)
+            scale(${1 - 0.2 * stt})
+            perspective(16px)
+            rotateY(1deg)
+        `;
+        itemElement.style.zIndex = `${-stt}`;
+        itemElement.style.filter = "blur(5px)";
+        itemElement.style.opacity = stt > 2 ? "0" : "0.6";
+      }
+    });
+  };
+
+  useEffect(() => {
+    loadShow();
+  }, [active]);
+
+  useEffect(() => {
+    setActive(scores.length - 1);
+  }, [scores]);
+
+  return (
+    <div className="relative w-full h-full">
+      {scores.map((item, index) => (
+        <div
+          key={index}
+          id={`item-${index}`}
+          className={`absolute m-auto top-0 bottom-0 left-0 right-0 text-justify bg-white w-2/3 border border-gray-200 rounded-lg shadow ${styles.item}`}
+        >
+          {index === active && (
+            <CancelIcon
+              sx={{ fontSize: "28px" }}
+              className="absolute text-slate-600 -right-3 -top-3"
+              onClick={() => onDelete(active)}
+            />
+          )}
+          <img
+            src={item.url}
+            className="w-full h-full object-cover rounded-lg"
+          />
+        </div>
+      ))}
+      {active < scores.length - 1 && (
+        <button
+          id="next"
+          className="absolute top-1/2 right-2 text-3xl font-extrabold text-white z-40 bg-red-300 rounded-full px-4 py-3"
+          onClick={() =>
+            setActive(active + 1 < scores.length ? active + 1 : active)
+          }
+        >
+          &rarr;
+        </button>
+      )}
+      {active > 0 && (
+        <button
+          id="prev"
+          className="absolute top-1/2 left-2 text-3xl font-extrabold text-white z-40 bg-red-300 rounded-full px-4 py-3"
+          onClick={() => setActive(active - 1 >= 0 ? active - 1 : active)}
+        >
+          &larr;
+        </button>
+      )}
+      <div className="absolute m-auto bottom-0 left-0 right-0 text-center z-50">
+        <span className="text-white text-sm font-medium bg-slate-400 shadow rounded-full px-4 py-1">
+          {active + 1} / {scores.length}
+        </span>
+      </div>
+    </div>
+  );
+}
