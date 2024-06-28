@@ -1,8 +1,8 @@
 "use client";
 
 import Container from "@components/Container";
-import ProcessView from "@components/process/ProcessView";
-import ResultView from "@components/result/ResultView";
+import ProcessView from "@components/score/ProcessView";
+import ResultView from "@components/score/ResultView";
 import ScoreHeader from "@components/score/ScoreHeader";
 import { useEffect, useRef, useState } from "react";
 
@@ -11,7 +11,7 @@ import EpsonAuthUpdateModal from "@components/modal/EpsonAuthUpdateModal";
 import { useSocket } from "@components/providers/socket-provider";
 import ScoreCardSlider from "@components/score/ScoreCardSlider";
 import { AddCircleOutlineOutlined, Add as AddIcon } from "@mui/icons-material";
-import { AuthToken, ScoreFile, Status } from "@types";
+import { EpsonAuthToken, ScoreFile, Status } from "@types";
 
 export default function Score() {
   const { socket } = useSocket();
@@ -19,7 +19,7 @@ export default function Score() {
   const epsonAuthUpdateRef = useRef<HTMLDialogElement>(null);
 
   const [scoreFiles, setScoreFiles] = useState<ScoreFile[]>([]);
-  const [authToken, setAuthToken] = useState<AuthToken | null>(null);
+  const [authToken, setAuthToken] = useState<EpsonAuthToken | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(false);
   const [scoreArray, setScoreArray] = useState<any[][]>([[]]);
   const [progress, setProgress] = useState<number | null>(null);
@@ -281,7 +281,7 @@ export default function Score() {
         )}
 
         {status === 2 && (
-          <ResultView isConnected={authToken != null} scoreArray={scoreArray} />
+          <ResultView authToken={authToken} scoreArray={scoreArray} />
         )}
       </div>
 

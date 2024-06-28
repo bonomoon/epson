@@ -1,30 +1,29 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-
-import styles from "@styles/Result.module.css";
-import {
-  LocalPrintshopOutlined,
-  PictureAsPdfOutlined,
-} from "@mui/icons-material";
 
 import ScoreCardSlider from "@components/score/ScoreCardSlider";
-
 import ScoreMaker from "@lib/score";
+import { EpsonAuthToken, ScoreFile } from "@types";
 import Container from "@components/Container";
 
-export default function ResultPage({ isConnected, scoreArray }) {
-  const epsonAuthRef = useRef();
-  const scoreRef = useRef();
-  const [result, setResult] = useState([]);
+interface ResultPageProps {
+  authToken: EpsonAuthToken | null;
+  scoreArray: any[];
+}
+
+export default function ResultPage({ scoreArray, authToken }: ResultPageProps) {
+  const scoreRef = useRef<HTMLCanvasElement>(null);
+  const [result, setResult] = useState<ScoreFile[]>([]);
 
   useEffect(() => {
-    const tmpArray = [];
+    const tmpArray: string[] = [];
+
     scoreArray.forEach((el) => {
-      const scoreImg = ScoreMaker.run(scoreRef, el, "6/8");
+      const scoreImg = ScoreMaker.run(scoreRef.current, el, "6/8");
       tmpArray.push(scoreImg);
     });
+
     setResult(
       tmpArray.map((el) => {
         return {
@@ -32,23 +31,19 @@ export default function ResultPage({ isConnected, scoreArray }) {
         };
       })
     );
-  }, []);
+  }, [scoreArray]);
 
-  const delLIst = (index) => {
-    setResult(
-      result.filter((el, idx) => {
-        if (idx == index) {
-          return false;
-        } else {
-          return true;
-        }
-      })
-    );
+  const delList = (index: number) => {
+    setResult(result.filter((_, idx) => idx !== index));
   };
 
   const handlePrint = async () => {
+    if (!authToken) return;
+    
+    const imageLink = result[0]?.url;
+    if (!imageLink) return;
+
     const image = await fetch(imageLink).then((res) => res.blob());
-    const images = [image, image];
 
     const res = await fetch(`/api/epson/print/${authToken.subject_id}`, {
       method: "POST",
@@ -68,9 +63,7 @@ export default function ResultPage({ isConnected, scoreArray }) {
   return (
     <>
       <canvas id="id" ref={scoreRef} style={{ display: "none" }}></canvas>
-      {/* 악보 */}
-      <ScoreCardSlider scores={result} onDelete={delLIst} />
-
+      <ScoreCardSlider scores={result} onDelete={delList} />
       <Container className="flex flex-row w-full text-center justify-center items-center gap-3 mt-3 mb-5">
         <label htmlFor="file-input">
           <button
@@ -88,21 +81,6 @@ export default function ResultPage({ isConnected, scoreArray }) {
           프린트하기
         </button>
       </Container>
-
-      {/* <div className={styles.grid}>
-        <button
-          className={!isConnected ? styles.disabled : styles.blue_card}
-          aria-disabled={!isConnected}
-          onClick={handlePrint}
-        >
-          <LocalPrintshopOutlined style={{ marginRight: 0.5 }} />
-          프린트하기
-        </button>
-        <a className={styles.grey_card} download>
-          <PictureAsPdfOutlined />
-          PDF로 저장하기
-        </a>
-      </div> */}
     </>
   );
 }

@@ -4,10 +4,24 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Container from "../Container";
 import LoadingSpinner from "../LoadingSpinner";
+import { EpsonAuthToken, EpsonDeviceInfo } from "@types";
 
-export default function ScoreHeader({ className, auth, onAuthClick, onAuthUpdateClick }) {
-  const [epsonDeviceInfo, setEpsonDeviceInfo] = useState(null);
-  const [isDeviceLoading, setIsDeviceLoading] = useState(false);
+interface ScoreHeaderProps {
+  className?: string;
+  auth: EpsonAuthToken | null;
+  onAuthClick: () => void;
+  onAuthUpdateClick: () => void;
+}
+
+export default function ScoreHeader({
+  className,
+  auth,
+  onAuthClick,
+  onAuthUpdateClick,
+}: ScoreHeaderProps) {
+  const [epsonDeviceInfo, setEpsonDeviceInfo] =
+    useState<EpsonDeviceInfo | null>(null);
+  const [isDeviceLoading, setIsDeviceLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (auth !== null) {
@@ -18,10 +32,10 @@ export default function ScoreHeader({ className, auth, onAuthClick, onAuthUpdate
   const fetchEpsonConnectDevice = async () => {
     setIsDeviceLoading(true);
 
-    const res = await fetch(`/api/epson/devices/${auth.subject_id}`, {
+    const res = await fetch(`/api/epson/devices/${auth?.subject_id}`, {
       method: "GET",
       headers: {
-        Authorization: `${auth.token_type} ${auth.access_token}`,
+        Authorization: `${auth?.token_type} ${auth?.access_token}`,
       },
     });
 
@@ -66,13 +80,15 @@ export default function ScoreHeader({ className, auth, onAuthClick, onAuthUpdate
               className="flex justify-center items-center w-full bg-slate-200 active:bg-slate-300 active:after:bg-slate-200 border border-gray-300 transform transition-colors rounded-2xl px-2 py-2 duration-300"
               onClick={onAuthUpdateClick}
             >
-              {epsonDeviceInfo.ec_connected ? (
+              {epsonDeviceInfo?.ec_connected ? (
                 <div className="absolute left-2 w-3 h-3 rounded-full bg-green-500"></div>
               ) : (
                 <div className="absolute left-2 w-3 h-3 rounded-full bg-red-500"></div>
               )}
               <div className="text-center">
-                {epsonDeviceInfo.printer_name ? `${epsonDeviceInfo.printer_name}-${epsonDeviceInfo.serial_no}` : "등록된 기기가 존재하지 않습니다."}
+                {epsonDeviceInfo.printer_name
+                  ? `${epsonDeviceInfo.printer_name}-${epsonDeviceInfo.serial_no}`
+                  : "등록된 기기가 존재하지 않습니다."}
               </div>
             </button>
           )}

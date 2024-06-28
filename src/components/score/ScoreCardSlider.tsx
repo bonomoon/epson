@@ -2,21 +2,34 @@
 
 import { useState, useEffect } from "react";
 import styles from "./ScoreCardSlider.module.css";
-import { Cancel as CancelIcon} from '@mui/icons-material';
+import { Cancel as CancelIcon } from "@mui/icons-material";
+import { ScoreFile } from "@types";
 
-export default function ScoreCardSlider({ scores, onDelete }) {
-  const [active, setActive] = useState(0);
+interface ScoreCardSliderProps {
+  scores: ScoreFile[];
+  onDelete: (index: number) => void;
+}
+
+export default function ScoreCardSlider({
+  scores,
+  onDelete,
+}: ScoreCardSliderProps) {
+  const [active, setActive] = useState<number>(0);
 
   const loadShow = () => {
     scores.forEach((item, index) => {
       const itemElement = document.getElementById(`item-${index}`);
       let stt = 0;
-      
+
+      if (!itemElement) {
+        return;
+      }
+
       if (index === active) {
         itemElement.style.transform = "none";
-        itemElement.style.zIndex = 1;
+        itemElement.style.zIndex = "1";
         itemElement.style.filter = "none";
-        itemElement.style.opacity = 1;
+        itemElement.style.opacity = "1";
       } else if (index > active) {
         stt++;
         itemElement.style.transform = `
@@ -25,9 +38,9 @@ export default function ScoreCardSlider({ scores, onDelete }) {
             perspective(16px)
             rotateY(-1deg)
         `;
-        itemElement.style.zIndex = -stt;
+        itemElement.style.zIndex = `${-stt}`;
         itemElement.style.filter = "blur(5px)";
-        itemElement.style.opacity = stt > 2 ? 0 : 0.6;
+        itemElement.style.opacity = stt > 2 ? "0" : "0.6";
       } else {
         stt++;
         itemElement.style.transform = `
@@ -36,9 +49,9 @@ export default function ScoreCardSlider({ scores, onDelete }) {
             perspective(16px)
             rotateY(1deg)
         `;
-        itemElement.style.zIndex = -stt;
+        itemElement.style.zIndex = `${-stt}`;
         itemElement.style.filter = "blur(5px)";
-        itemElement.style.opacity = stt > 2 ? 0 : 0.6;
+        itemElement.style.opacity = stt > 2 ? "0" : "0.6";
       }
     });
   };
@@ -59,7 +72,13 @@ export default function ScoreCardSlider({ scores, onDelete }) {
           id={`item-${index}`}
           className={`absolute m-auto top-0 bottom-0 left-0 right-0 text-justify bg-white w-2/3 border border-gray-200 rounded-lg shadow ${styles.item}`}
         >
-          {index === active && <CancelIcon sx={{fontSize: '28px'}} className="absolute text-slate-600 -right-3 -top-3" onClick={() => onDelete(active)}/> }
+          {index === active && (
+            <CancelIcon
+              sx={{ fontSize: "28px" }}
+              className="absolute text-slate-600 -right-3 -top-3"
+              onClick={() => onDelete(active)}
+            />
+          )}
           <img
             src={item.url}
             className="w-full h-full object-cover rounded-lg"
